@@ -2,12 +2,12 @@
 <html lang="id">
 
 <head>
-    {{-- Dibuat oleh Kahla Luthfiyah Halim ada copyright --}}
-    {{-- tanggal 18-04-2026 --}}
+    
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RMC - Rental Motor Ciamis</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('app/foto/favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="<?php echo e(asset('app/foto/favicon.ico')); ?>">
     <script src="https://cdn.tailwindcss.com"></link>
     <!-- cdn flowbite -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
@@ -291,13 +291,13 @@
                     <span class="text-2xl font-extrabold text-slate-700 ml-1">RMC</span>
                 </div>
                 <ul class="hidden md:flex items-center gap-6 text-sm text-slate-600 font-medium">
-                    <li><a href="{{ url('/') }}" class="rmc-link">Home</a></li>
-                    <li><a href="{{ url('/') }}#motor-results" class="rmc-link">Motor</a></li>
-                    <li><a href="{{ url('/') }}#cara-rental" class="rmc-link">Cara Rental</a></li>
-                    <li><a href="{{ url('/') }}#keunggulan" class="rmc-link">Keunggulan</a></li>
-                    <li><a href="{{ url('/') }}#testimoni" class="rmc-link">Testimoni</a></li>
-                    <li><a href="{{ url('/') }}#faq" class="rmc-link">FAQ</a></li>
-                    <li><a href="{{ url('/') }}#lokasi" class="rmc-link">Lokasi</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>" class="rmc-link">Home</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#motor-results" class="rmc-link">Motor</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#cara-rental" class="rmc-link">Cara Rental</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#keunggulan" class="rmc-link">Keunggulan</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#testimoni" class="rmc-link">Testimoni</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#faq" class="rmc-link">FAQ</a></li>
+                    <li><a href="<?php echo e(url('/')); ?>#lokasi" class="rmc-link">Lokasi</a></li>
                     <li><a href="/login" class="rmc-link">Login</a></li>
                 </ul>
                 <button id="mobile-menu-toggle" type="button"
@@ -312,13 +312,13 @@
             </div>
             <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 bg-white/95 backdrop-blur">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1 text-sm text-slate-700">
-                    <a href="{{ url('/') }}" class="py-2 rmc-link">Home</a>
-                    <a href="{{ url('/') }}#motor-results" class="py-2 rmc-link">Motor</a>
-                    <a href="{{ url('/') }}#cara-rental" class="py-2 rmc-link">Cara Rental</a>
-                    <a href="{{ url('/') }}#keunggulan" class="py-2 rmc-link">Keunggulan</a>
-                    <a href="{{ url('/') }}#testimoni" class="py-2 rmc-link">Testimoni</a>
-                    <a href="{{ url('/') }}#faq" class="py-2 rmc-link">FAQ</a>
-                    <a href="{{ url('/') }}#lokasi" class="py-2 rmc-link">Lokasi</a>
+                    <a href="<?php echo e(url('/')); ?>" class="py-2 rmc-link">Home</a>
+                    <a href="<?php echo e(url('/')); ?>#motor-results" class="py-2 rmc-link">Motor</a>
+                    <a href="<?php echo e(url('/')); ?>#cara-rental" class="py-2 rmc-link">Cara Rental</a>
+                    <a href="<?php echo e(url('/')); ?>#keunggulan" class="py-2 rmc-link">Keunggulan</a>
+                    <a href="<?php echo e(url('/')); ?>#testimoni" class="py-2 rmc-link">Testimoni</a>
+                    <a href="<?php echo e(url('/')); ?>#faq" class="py-2 rmc-link">FAQ</a>
+                    <a href="<?php echo e(url('/')); ?>#lokasi" class="py-2 rmc-link">Lokasi</a>
                     <a href="/login" class="py-2 rmc-link">Login</a>
                 </div>
             </div>
@@ -346,7 +346,7 @@
                             class="btn-primary-rmc inline-flex w-full sm:w-auto justify-center items-center px-6 py-3 text-white text-sm md:text-base font-semibold rounded-full shadow-sm hover:opacity-95 transition">
                             Pesan Sekarang
                         </a>
-                        <a href="{{ url('/') }}#motor-results"
+                        <a href="<?php echo e(url('/')); ?>#motor-results"
                             class="rmc-outline-btn inline-flex w-full sm:w-auto justify-center items-center px-6 py-3 bg-white text-sm md:text-base font-semibold rounded-full transition">
                             Lihat Motor
                         </a>
@@ -363,11 +363,11 @@
         <div id="motor-results"
             class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 md:pb-10 w-full relative z-40">
             <div class="search-card bg-white rounded-2xl border border-slate-100 p-3 md:p-4 relative z-40">
-                <form action="{{ url('/') }}#motor-results" method="GET"
+                <form action="<?php echo e(url('/')); ?>#motor-results" method="GET"
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2" id="hero-search-form">
                     <div class="rounded-xl bg-slate-50 px-3 py-2 lg:col-span-7">
                         <label for="brand" class="text-xs text-slate-500 block">Nama Motor</label>
-                        <input id="brand" name="brand" type="text" value="{{ $brand ?? '' }}"
+                        <input id="brand" name="brand" type="text" value="<?php echo e($brand ?? ''); ?>"
                             placeholder="Contoh: NMAX, Beat, Vario"
                             class="mt-1 w-full bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none" />
                     </div>
@@ -375,10 +375,10 @@
                         <label for="type_cc" class="text-xs text-slate-500 block">Tipe Motor (CC)</label>
                         <select id="type_cc" name="type_cc"
                             class="mt-1 w-full bg-transparent text-sm font-semibold text-slate-700 focus:outline-none">
-                            <option value="" {{ empty($typeCc) ? 'selected' : '' }}>Semua Tipe</option>
-                            <option value="100" {{ ($typeCc ?? '') === '100' ? 'selected' : '' }}>100cc</option>
-                            <option value="125" {{ ($typeCc ?? '') === '125' ? 'selected' : '' }}>125cc</option>
-                            <option value="150" {{ ($typeCc ?? '') === '150' ? 'selected' : '' }}>150cc</option>
+                            <option value="" <?php echo e(empty($typeCc) ? 'selected' : ''); ?>>Semua Tipe</option>
+                            <option value="100" <?php echo e(($typeCc ?? '') === '100' ? 'selected' : ''); ?>>100cc</option>
+                            <option value="125" <?php echo e(($typeCc ?? '') === '125' ? 'selected' : ''); ?>>125cc</option>
+                            <option value="150" <?php echo e(($typeCc ?? '') === '150' ? 'selected' : ''); ?>>150cc</option>
                         </select>
                     </div>
                 </form>
@@ -391,35 +391,35 @@
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5">
                 <div>
                     <p class="text-sm font-semibold rmc-text tracking-wide uppercase">
-                        {{ !empty($isSearching) ? 'Hasil Pencarian Motor' : 'Motor Terlaris' }}
+                        <?php echo e(!empty($isSearching) ? 'Hasil Pencarian Motor' : 'Motor Terlaris'); ?>
+
                     </p>
-                    {{-- <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">
-                        {{ !empty($isSearching) ? 'Motor sesuai kebutuhan Anda' : '4 motor paling banyak disewa' }}
-                    </h3> --}}
+                    
                 </div>
             </div>
 
-            @if (isset($motors) && $motors->count() > 0)
+            <?php if(isset($motors) && $motors->count() > 0): ?>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    @foreach ($motors as $motor)
-                        @php
+                    <?php $__currentLoopData = $motors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $motor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $rawPhoto = $motor->getRawOriginal('photo_url') ?? '';
                             $photoUrl = \Illuminate\Support\Str::startsWith($rawPhoto, ['http://', 'https://'])
                                 ? $rawPhoto
                                 : asset($rawPhoto);
                             $harian = optional($motor->rentalRates)->harian;
-                        @endphp
+                        ?>
                         <article class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                            <img src="{{ $photoUrl }}" alt="{{ $motor->brand }}"
+                            <img src="<?php echo e($photoUrl); ?>" alt="<?php echo e($motor->brand); ?>"
                                 class="w-full h-44 object-cover">
                             <div class="p-4">
-                                <h4 class="text-base font-bold text-slate-800">{{ $motor->brand }}</h4>
-                                <p class="text-sm text-slate-500 mt-1">Tipe : {{ $motor->type_cc }}cc</p>
+                                <h4 class="text-base font-bold text-slate-800"><?php echo e($motor->brand); ?></h4>
+                                <p class="text-sm text-slate-500 mt-1">Tipe : <?php echo e($motor->type_cc); ?>cc</p>
                                 <p class="text-xs text-slate-500 mt-1">
-                                    Disewa {{ $motor->completed_bookings_count ?? 0 }} kali
+                                    Disewa <?php echo e($motor->completed_bookings_count ?? 0); ?> kali
                                 </p>
                                 <p class="mt-3 text-sm font-semibold text-slate-700">
-                                    {{ $harian ? 'Mulai Rp ' . number_format($harian, 0, ',', '.') . '/hari' : 'Harga belum tersedia' }}
+                                    <?php echo e($harian ? 'Mulai Rp ' . number_format($harian, 0, ',', '.') . '/hari' : 'Harga belum tersedia'); ?>
+
                                 </p>
                                 <a href="/login"
                                     class="mt-4 inline-flex w-full justify-center items-center btn-primary-rmc rounded-xl text-white text-sm font-semibold px-4 py-2.5 hover:opacity-95 transition">
@@ -427,13 +427,13 @@
                                 </a>
                             </div>
                         </article>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-            @else
+            <?php else: ?>
                 <div class="bg-white border border-slate-100 rounded-2xl p-8 text-center text-slate-500">
                     Motor tidak ditemukan. Coba ubah kata kunci nama motor atau tipe motor.
                 </div>
-            @endif
+            <?php endif; ?>
         </section>
 
         <section id="cara-rental" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 pt-2 md:pt-8 pb-4 md:pb-8">
@@ -512,7 +512,7 @@
             </div>
         </section>
 
-        {{-- section Why Choose Us --}}
+        
         <section id="keunggulan" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 py-4 md:py-6">
             <div class="text-center max-w-3xl mx-auto">
                 <p class="text-sm font-semibold tracking-wide uppercase rmc-text">Why Choose Us</p>
@@ -679,7 +679,7 @@
             </div>
         </section>
 
-        {{-- section lokasi & kontak --}}
+        
         <section id="lokasi" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
             <div class="rounded-3xl border border-slate-200 bg-white p-5 md:p-8 lg:p-10">
                 <div class="grid lg:grid-cols-2 gap-8 md:gap-10 items-start">
@@ -755,18 +755,18 @@
                 <div class="lg:col-span-3">
                     <p class="font-semibold text-slate-800">Navigation</p>
                     <ul class="mt-4 space-y-3 text-slate-500">
-                        <li><a href="{{ url('/') }}#motor-results" class="rmc-link">Motor</a></li>
-                        <li><a href="{{ url('/') }}#cara-rental" class="rmc-link">Cara Rental</a></li>
-                        <li><a href="{{ url('/') }}#keunggulan" class="rmc-link">Keunggulan</a></li>
-                        <li><a href="{{ url('/') }}#testimoni" class="rmc-link">Testimoni</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#motor-results" class="rmc-link">Motor</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#cara-rental" class="rmc-link">Cara Rental</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#keunggulan" class="rmc-link">Keunggulan</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#testimoni" class="rmc-link">Testimoni</a></li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-2">
                     <p class="font-semibold text-slate-800">Company</p>
                     <ul class="mt-4 space-y-3 text-slate-500">
-                        <li><a href="{{ url('/') }}" class="rmc-link">Tentang Kami</a></li>
-                        <li><a href="{{ url('/') }}#lokasi" class="rmc-link">Kontak</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>" class="rmc-link">Tentang Kami</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#lokasi" class="rmc-link">Kontak</a></li>
                         <li><a href="/login" class="rmc-link">Login</a></li>
                     </ul>
                 </div>
@@ -774,17 +774,17 @@
                 <div class="lg:col-span-3">
                     <p class="font-semibold text-slate-800">Support</p>
                     <ul class="mt-4 space-y-3 text-slate-500">
-                        <li><a href="{{ url('/') }}#faq" class="rmc-link">Help center</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>#faq" class="rmc-link">Help center</a></li>
                         <li><a href="mailto:kahlaluthifiyah@gmail.com" class="rmc-link">Ask a question</a></li>
-                        <li><a href="{{ url('/') }}" class="rmc-link">Privacy policy</a></li>
-                        <li><a href="{{ url('/') }}" class="rmc-link">Terms & conditions</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>" class="rmc-link">Privacy policy</a></li>
+                        <li><a href="<?php echo e(url('/')); ?>" class="rmc-link">Terms & conditions</a></li>
                     </ul>
                 </div>
             </div>
 
             <div
                 class="mt-10 pt-5 border-t border-slate-300/70 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                <p>&copy; {{ date('Y') }} Rental Motor Ciamis. All rights reserved.</p>
+                <p>&copy; <?php echo e(date('Y')); ?> Rental Motor Ciamis. All rights reserved.</p>
                 <a href="https://portfolio-kahla.vercel.app/" target="_blank" rel="noopener noreferrer"
                     class="text-slate-600 rmc-link">About developer</a>
             </div>
@@ -818,7 +818,7 @@
             function submitSearch() {
                 if (!searchForm || !brandInput || !typeSelect) return;
 
-                const baseUrl = @json(url('/'));
+                const baseUrl = <?php echo json_encode(url('/'), 15, 512) ?>;
                 const brandValue = brandInput.value.trim();
                 const typeValue = typeSelect.value.trim();
                 const params = new URLSearchParams();
@@ -942,3 +942,4 @@
 </body>
 
 </html>
+<?php /**PATH D:\PROJEK PROJEK\rental-motor\rental-motor\resources\views/welcome.blade.php ENDPATH**/ ?>
