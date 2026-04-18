@@ -34,16 +34,11 @@
         }
 
         .hero-bg {
-            background-image: radial-gradient(circle at 10% 20%, rgba(103, 72, 251, 0.16), transparent 30%),
-                radial-gradient(circle at 90% 10%, rgba(103, 72, 251, 0.1), transparent 35%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(103, 72, 251, 0.16), transparent 30%);
         }
 
         .hero-wrap {
             background: linear-gradient(180deg, #f8fbff 0%, #f4f8fb 100%);
-        }
-
-        .hero-bubble {
-            background: radial-gradient(circle at center, rgba(103, 72, 251, 0.22) 0%, rgba(103, 72, 251, 0.08) 45%, transparent 70%);
         }
 
         .btn-primary-rmc {
@@ -286,7 +281,7 @@
 </head>
 
 <body class="bg-gray-100 text-gray-800">
-    <header class="hero-wrap hero-bg border-b rmc-border-soft relative overflow-x-hidden overflow-y-visible z-10">
+    <header class="hero-wrap hero-bg rmc-border-soft relative overflow-x-hidden overflow-y-visible z-10">
         <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -328,10 +323,10 @@
             </div>
         </nav>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-6 md:pt-24 md:pb-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-6 md:pt-24 md:pb-8 overflow-hidden">
 
             <div class="grid md:grid-cols-2 gap-6 md:gap-10 items-center pt-6 md:pt-16 pb-10 md:pb-24">
-                <div>
+                <div class="min-w-0">
                     <span
                         class="inline-flex items-center px-4 py-2 rounded-full rmc-badge text-xs md:text-sm font-semibold">
                         Rental Motor Ciamis
@@ -357,8 +352,7 @@
                     </div>
                 </div>
 
-                <div class="hidden md:block relative">
-                    <div class="hero-bubble absolute -z-0 inset-0 rounded-full scale-125"></div>
+                <div class="hidden md:block relative min-w-0">
                     <img src="/app/foto/Motor-Fazzio-Kuning.png" alt="Motor rental RMC"
                         class="relative z-10 w-full max-w-xl mx-auto h-[230px] sm:h-[320px] md:h-[460px] object-contain drop-shadow-md">
                 </div>
@@ -366,8 +360,8 @@
         </div>
 
         <div id="motor-results"
-            class="max-w-6xl mx-auto px-4 sm:px-6 pb-12 md:pb-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-[-42px] w-full z-30">
-            <div class="search-card bg-white rounded-2xl border border-slate-100 p-3 md:p-4 relative z-30">
+            class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 md:pb-10 w-full relative z-40">
+            <div class="search-card bg-white rounded-2xl border border-slate-100 p-3 md:p-4 relative z-40">
                 <form action="{{ url('/') }}#motor-results" method="GET"
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2" id="hero-search-form">
                     <div class="rounded-xl bg-slate-50 px-3 py-2 lg:col-span-7">
