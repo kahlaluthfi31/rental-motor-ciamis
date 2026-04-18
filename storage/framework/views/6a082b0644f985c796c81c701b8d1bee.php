@@ -2,6 +2,8 @@
 <html lang="id">
 
 <head>
+    
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RMC - Rental Motor Ciamis</title>
@@ -24,6 +26,11 @@
 
         body {
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .section-anchor {
+            scroll-margin-top: 92px;
         }
 
         .hero-bg {
@@ -231,12 +238,20 @@
             .why-pill-shift-5 {
                 margin-right: 0;
             }
+
+            .why-pill-right {
+                margin-left: 0;
+                width: 100%;
+            }
         }
 
         .testi-track {
             scroll-behavior: smooth;
             -ms-overflow-style: none;
             scrollbar-width: none;
+            scroll-padding-inline: 0.25rem;
+            overscroll-behavior-x: contain;
+            touch-action: pan-x;
         }
 
         .testi-track::-webkit-scrollbar {
@@ -245,7 +260,8 @@
 
         .testi-card {
             scroll-snap-align: start;
-            flex: 0 0 100%;
+            flex: 0 0 calc(100% - 0.5rem);
+            max-width: calc(100% - 0.5rem);
         }
 
         @media (min-width: 768px) {
@@ -253,13 +269,26 @@
                 flex: 0 0 calc(50% - 0.5rem);
             }
         }
+
+        @media (max-width: 640px) {
+            .testi-track {
+                scroll-padding-inline: 0;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .testi-card {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
-    <header class="hero-wrap hero-bg border-b rmc-border-soft relative overflow-visible z-10">
+    <header class="hero-wrap hero-bg border-b rmc-border-soft relative overflow-x-hidden overflow-y-visible z-10">
         <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur">
-            <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full" style="background-color:#6748FB"></span>
                     <span class="w-3 h-3 rounded-full -ml-1" style="background-color:#8E79FF"></span>
@@ -275,18 +304,40 @@
                     <li><a href="<?php echo e(url('/')); ?>#lokasi" class="rmc-link">Lokasi</a></li>
                     <li><a href="/login" class="rmc-link">Login</a></li>
                 </ul>
+                <button id="mobile-menu-toggle" type="button"
+                    class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 text-slate-600"
+                    aria-controls="mobile-menu" aria-expanded="false" aria-label="Toggle mobile menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6.75h16.5m-16.5 5.25h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+            <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 bg-white/95 backdrop-blur">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1 text-sm text-slate-700">
+                    <a href="<?php echo e(url('/')); ?>" class="py-2 rmc-link">Home</a>
+                    <a href="<?php echo e(url('/')); ?>#motor-results" class="py-2 rmc-link">Motor</a>
+                    <a href="<?php echo e(url('/')); ?>#cara-rental" class="py-2 rmc-link">Cara Rental</a>
+                    <a href="<?php echo e(url('/')); ?>#keunggulan" class="py-2 rmc-link">Keunggulan</a>
+                    <a href="<?php echo e(url('/')); ?>#testimoni" class="py-2 rmc-link">Testimoni</a>
+                    <a href="<?php echo e(url('/')); ?>#faq" class="py-2 rmc-link">FAQ</a>
+                    <a href="<?php echo e(url('/')); ?>#lokasi" class="py-2 rmc-link">Lokasi</a>
+                    <a href="/login" class="py-2 rmc-link">Login</a>
+                </div>
             </div>
         </nav>
 
-        <div class="max-w-6xl mx-auto px-6 pt-20 pb-6 md:pt-24 md:pb-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-6 md:pt-24 md:pb-8">
 
-            <div class="grid md:grid-cols-2 gap-10 items-center pt-10 md:pt-16 pb-14 md:pb-24">
+            <div class="grid md:grid-cols-2 gap-6 md:gap-10 items-center pt-6 md:pt-16 pb-10 md:pb-24">
                 <div>
                     <span
                         class="inline-flex items-center px-4 py-2 rounded-full rmc-badge text-xs md:text-sm font-semibold">
                         Rental Motor Ciamis
                     </span>
-                    <h1 class="mt-6 text-4xl md:text-6xl font-extrabold tracking-tight text-slate-800 leading-tight">
+                    <h1
+                        class="mt-6 text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-slate-800 leading-tight">
                         Make Your Ride
                         <span class="rmc-text">Easy & Affordable</span>
                     </h1>
@@ -294,28 +345,28 @@
                         Pengen jalan-jalan di Ciamis, kota terbersih se-ASEAN, tapi gak punya kendaraan? RMC jadi solusi
                         rental motor praktis, nyaman, dan siap berangkat kapan saja.
                     </p>
-                    <div class="mt-8 flex flex-wrap items-center gap-4">
+                    <div class="mt-8 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
                         <a href="/login"
-                            class="btn-primary-rmc inline-flex items-center px-6 py-3 text-white text-sm md:text-base font-semibold rounded-full shadow-sm hover:opacity-95 transition">
+                            class="btn-primary-rmc inline-flex w-full sm:w-auto justify-center items-center px-6 py-3 text-white text-sm md:text-base font-semibold rounded-full shadow-sm hover:opacity-95 transition">
                             Pesan Sekarang
                         </a>
-                        <a href="#motor"
-                            class="rmc-outline-btn inline-flex items-center px-6 py-3 bg-white text-sm md:text-base font-semibold rounded-full transition">
+                        <a href="<?php echo e(url('/')); ?>#motor-results"
+                            class="rmc-outline-btn inline-flex w-full sm:w-auto justify-center items-center px-6 py-3 bg-white text-sm md:text-base font-semibold rounded-full transition">
                             Lihat Motor
                         </a>
                     </div>
                 </div>
 
-                <div class="relative">
+                <div class="hidden md:block relative">
                     <div class="hero-bubble absolute -z-0 inset-0 rounded-full scale-125"></div>
                     <img src="/app/foto/Motor-Fazzio-Kuning.png" alt="Motor rental RMC"
-                        class="relative z-10 w-full max-w-xl mx-auto h-[320px] md:h-[460px] object-contain drop-shadow-md">
+                        class="relative z-10 w-full max-w-xl mx-auto h-[230px] sm:h-[320px] md:h-[460px] object-contain drop-shadow-md">
                 </div>
             </div>
         </div>
 
         <div id="motor-results"
-            class="max-w-6xl mx-auto px-6 pb-12 md:pb-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-[-42px] w-full z-30">
+            class="max-w-6xl mx-auto px-4 sm:px-6 pb-12 md:pb-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-[-42px] w-full z-30">
             <div class="search-card bg-white rounded-2xl border border-slate-100 p-3 md:p-4 relative z-30">
                 <form action="<?php echo e(url('/')); ?>#motor-results" method="GET"
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2" id="hero-search-form">
@@ -341,7 +392,7 @@
     </header>
 
     <main>
-        <section class="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-8">
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-16 md:pt-24 pb-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-5">
                 <div>
                     <p class="text-sm font-semibold rmc-text tracking-wide uppercase">
@@ -363,7 +414,8 @@
                             $harian = optional($motor->rentalRates)->harian;
                         ?>
                         <article class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                            <img src="<?php echo e($photoUrl); ?>" alt="<?php echo e($motor->brand); ?>" class="w-full h-44 object-cover">
+                            <img src="<?php echo e($photoUrl); ?>" alt="<?php echo e($motor->brand); ?>"
+                                class="w-full h-44 object-cover">
                             <div class="p-4">
                                 <h4 class="text-base font-bold text-slate-800"><?php echo e($motor->brand); ?></h4>
                                 <p class="text-sm text-slate-500 mt-1">Tipe : <?php echo e($motor->type_cc); ?>cc</p>
@@ -389,11 +441,12 @@
             <?php endif; ?>
         </section>
 
-        <section id="cara-rental" class="max-w-6xl mx-auto px-6 pt-2 md:pt-8 pb-4 md:pb-8">
-            <div class="how-wireframe-wrap md:p-8 lg:p-10">
+        <section id="cara-rental" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 pt-2 md:pt-8 pb-4 md:pb-8">
+            <div class="how-wireframe-wrap p-4 md:p-8 lg:p-10">
                 <div class="text-center max-w-3xl mx-auto">
                     <p class="text-sm font-semibold tracking-wide uppercase rmc-text">How RMC works</p>
-                    <h2 class="mt-2 text-3xl md:text-4xl font-extrabold leading-tight text-slate-800">Cara rental motor
+                    <h2 class="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-slate-800">Cara
+                        rental motor
                         di RMC</h2>
                     <p class="mt-3 text-slate-600">Alur sederhana, cepat, dan mudah dipahami untuk proses sewa di RMC.
                     </p>
@@ -465,17 +518,18 @@
         </section>
 
         
-        <section id="keunggulan" class="max-w-6xl mx-auto px-6 py-4 md:py-6">
+        <section id="keunggulan" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 py-4 md:py-6">
             <div class="text-center max-w-3xl mx-auto">
                 <p class="text-sm font-semibold tracking-wide uppercase rmc-text">Why Choose Us</p>
-                <h2 class="mt-2 text-3xl md:text-4xl font-extrabold leading-tight text-slate-800">Keunggulan RMC</h2>
+                <h2 class="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-slate-800">
+                    Keunggulan RMC</h2>
                 <p class="mt-3 text-slate-600">
                     RMC menawarkan pengalaman rental motor yang berbeda dengan proses yang mudah, cepat, dan transparan.
                 </p>
             </div>
             <div class="rounded-3xl bg-[#f3f4f6] p-4 md:p-6 lg:p-8">
                 <div class="grid lg:grid-cols-12 gap-4 lg:gap-8 items-center">
-                    <div class="lg:col-span-6 order-1">
+                    <div class="hidden md:block lg:col-span-6 order-1">
                         <img src="https://elangsung.com/wp-content/uploads/2023/11/Daftar-Merek-Motor-di-Indonesia-kamu-punya-yang-mana-yamaha-aerox.webp"
                             alt="Motor unggulan RMC" class="why-motor-stage drop-shadow-md mx-auto">
                     </div>
@@ -492,15 +546,17 @@
             </div>
         </section>
 
-        <section id="testimoni" class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+        <section id="testimoni" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
             <div class="grid lg:grid-cols-4 gap-6 items-start">
                 <div class="lg:col-span-1">
                     <p class="text-sm font-semibold rmc-text tracking-wide uppercase">What client say</p>
-                    <h3 class="mt-2 text-3xl font-extrabold text-slate-800 leading-tight">Apa kata pengguna RMC</h3>
+                    <h3 class="mt-2 text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">Apa kata pengguna
+                        RMC</h3>
                     <p class="mt-3 text-slate-500 text-sm">Pengalaman real pengguna yang sudah sewa motor di RMC.</p>
                 </div>
-                <div class="lg:col-span-3">
-                    <div id="testi-track" class="testi-track flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1">
+                <div class="lg:col-span-3 min-w-0">
+                    <div id="testi-track"
+                        class="testi-track flex gap-0 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 px-0 sm:px-1">
                         <article class="testi-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
                             <p class="text-slate-600 text-sm leading-relaxed">
                                 “Proses booking cepat, motornya bersih, dan admin responsif banget. Sangat membantu pas
@@ -538,8 +594,29 @@
                         </article>
                     </div>
 
-                    <div class="flex items-center justify-end gap-2 mt-4">
-                        <button type="button" id="testi-prev"
+                    <div class="flex md:hidden items-center justify-center gap-3 mt-4">
+                        <button type="button" data-testi-control="prev"
+                            class="w-10 h-10 rounded-full border border-[#6748FB]/20 bg-[#6748FB] text-white hover:opacity-90 transition inline-flex items-center justify-center"
+                            aria-label="Testimoni sebelumnya (mobile)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                        </button>
+                        <button type="button" data-testi-control="next"
+                            class="w-10 h-10 rounded-full border border-[#6748FB]/20 bg-[#6748FB] text-white hover:opacity-90 transition inline-flex items-center justify-center"
+                            aria-label="Testimoni berikutnya (mobile)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="hidden md:flex items-center justify-end gap-2 mt-4">
+                        <button type="button" data-testi-control="prev"
                             class="w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition inline-flex items-center justify-center"
                             aria-label="Testimoni sebelumnya">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -548,7 +625,7 @@
                                     d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
                             </svg>
                         </button>
-                        <button type="button" id="testi-next"
+                        <button type="button" data-testi-control="next"
                             class="w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition inline-flex items-center justify-center"
                             aria-label="Testimoni berikutnya">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -562,10 +639,11 @@
             </div>
         </section>
 
-        <section id="faq" class="max-w-4xl mx-auto px-6 py-14 md:py-24">
+        <section id="faq" class="section-anchor max-w-4xl mx-auto px-4 sm:px-6 py-14 md:py-24">
             <div class="text-center">
                 <p class="text-sm font-semibold rmc-text tracking-wide uppercase">FAQs</p>
-                <h3 class="mt-2 text-3xl md:text-4xl font-extrabold text-slate-800">Pertanyaan yang sering ditanyakan
+                <h3 class="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">Pertanyaan yang sering
+                    ditanyakan
                 </h3>
                 <p class="mt-3 text-slate-500">Jawaban cepat sebelum kamu mulai booking motor di RMC.</p>
             </div>
@@ -607,44 +685,50 @@
         </section>
 
         
-        <section id="lokasi" class="max-w-6xl mx-auto px-6 py-14 md:py-16">
+        <section id="lokasi" class="section-anchor max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
             <div class="rounded-3xl border border-slate-200 bg-white p-5 md:p-8 lg:p-10">
                 <div class="grid lg:grid-cols-2 gap-8 md:gap-10 items-start">
                     <div>
-                    <p class="text-sm font-semibold rmc-text tracking-wide uppercase">Lokasi & Kontak</p>
-                    <h3 class="mt-2 text-3xl md:text-4xl font-extrabold text-slate-800">Temukan RMC di Maps</h3>
-                    <p class="mt-3 text-slate-500 leading-relaxed">
-                        Datang langsung ke lokasi untuk pengambilan motor dan informasi lebih lanjut. Kamu juga bisa
-                        hubungi kami melalui kontak berikut.
-                    </p>
+                        <p class="text-sm font-semibold rmc-text tracking-wide uppercase">Lokasi & Kontak</p>
+                        <h3 class="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">Temukan RMC di
+                            Maps</h3>
+                        <p class="mt-3 text-slate-500 leading-relaxed">
+                            Datang langsung ke lokasi untuk pengambilan motor dan informasi lebih lanjut. Kamu juga bisa
+                            hubungi kami melalui kontak berikut.
+                        </p>
 
-                    <div class="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
-                        <a href="https://wa.me/6289657571177" target="_blank" rel="noopener noreferrer"
-                            class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">WhatsApp</p>
-                            <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB]">089657571177</p>
-                        </a>
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            <a href="https://wa.me/6289657571177" target="_blank" rel="noopener noreferrer"
+                                class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">WhatsApp</p>
+                                <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB]">089657571177
+                                </p>
+                            </a>
 
-                        <a href="mailto:kahlaluthifiyah@gmail.com"
-                            class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Email</p>
-                            <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB] break-all">kahlaluthifiyah@gmail.com</p>
-                        </a>
+                            <a href="mailto:kahlaluthifiyah@gmail.com"
+                                class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Email</p>
+                                <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB] break-all">
+                                    kahlaluthifiyah@gmail.com</p>
+                            </a>
 
-                        <a href="https://www.linkedin.com/in/kahla-luthfiyah-halim-817730323?utm_source=share_via&utm_content=profile&utm_medium=member_android"
-                            target="_blank" rel="noopener noreferrer"
-                            class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">LinkedIn</p>
-                            <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB] break-all">kahla-luthfiyah-halim</p>
-                        </a>
+                            <a href="https://www.linkedin.com/in/kahla-luthfiyah-halim-817730323?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                                target="_blank" rel="noopener noreferrer"
+                                class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">LinkedIn</p>
+                                <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB] break-all">
+                                    kahla-luthfiyah-halim</p>
+                            </a>
 
-                        <a href="https://www.instagram.com/kahlaluthfi_" target="_blank" rel="noopener noreferrer"
-                            class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Instagram</p>
-                            <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB]">@kahlaluthfi_</p>
-                        </a>
+                            <a href="https://www.instagram.com/kahlaluthfi_" target="_blank"
+                                rel="noopener noreferrer"
+                                class="group rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 hover:border-[#6748FB]/40 hover:bg-[#f6f3ff] transition">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Instagram</p>
+                                <p class="mt-1 font-semibold text-slate-800 group-hover:text-[#6748FB]">@kahlaluthfi_
+                                </p>
+                            </a>
+                        </div>
                     </div>
-                </div>
 
                     <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
                         <iframe
@@ -658,10 +742,10 @@
     </main>
 
     <footer class="bg-[#eceff5] border-t border-slate-200">
-        <div class="max-w-6xl mx-auto px-6 py-12 md:py-14">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-14">
             <div class="grid md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-10 text-sm">
                 <div class="lg:col-span-4">
-                    <p class="text-3xl font-bold text-slate-800">RMC</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-slate-800">RMC</p>
                     <p class="mt-4 text-slate-500 leading-relaxed max-w-sm">
                         Platform rental motor di Ciamis dengan pilihan unit terawat, proses booking cepat, dan layanan
                         yang ramah untuk perjalanan harian maupun liburan.
@@ -703,7 +787,8 @@
                 </div>
             </div>
 
-            <div class="mt-10 pt-5 border-t border-slate-300/70 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+            <div
+                class="mt-10 pt-5 border-t border-slate-300/70 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
                 <p>&copy; <?php echo e(date('Y')); ?> Rental Motor Ciamis. All rights reserved.</p>
                 <a href="https://portfolio-kahla.vercel.app/" target="_blank" rel="noopener noreferrer"
                     class="text-slate-600 rmc-link">About developer</a>
@@ -713,6 +798,23 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    const isHidden = mobileMenu.classList.toggle('hidden');
+                    mobileMenuToggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+                });
+
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    });
+                });
+            }
+
             const searchForm = document.getElementById('hero-search-form');
             const brandInput = document.getElementById('brand');
             const typeSelect = document.getElementById('type_cc');
@@ -762,27 +864,39 @@
             }
 
             const testiTrack = document.getElementById('testi-track');
-            const testiPrev = document.getElementById('testi-prev');
-            const testiNext = document.getElementById('testi-next');
+            const testiPrevButtons = document.querySelectorAll('[data-testi-control="prev"]');
+            const testiNextButtons = document.querySelectorAll('[data-testi-control="next"]');
 
-            if (testiTrack && testiPrev && testiNext) {
+            if (testiTrack && testiPrevButtons.length && testiNextButtons.length) {
                 const getStep = () => {
                     const firstCard = testiTrack.querySelector('.testi-card');
                     if (!firstCard) return 280;
-                    return firstCard.getBoundingClientRect().width + 16;
+
+                    const styles = window.getComputedStyle(testiTrack);
+                    const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+
+                    return firstCard.getBoundingClientRect().width + gap;
                 };
 
-                testiPrev.addEventListener('click', () => {
-                    testiTrack.scrollBy({
-                        left: -getStep(),
+                const scrollToClamped = (targetLeft) => {
+                    const maxLeft = Math.max(0, testiTrack.scrollWidth - testiTrack.clientWidth);
+                    const clampedLeft = Math.max(0, Math.min(targetLeft, maxLeft));
+
+                    testiTrack.scrollTo({
+                        left: clampedLeft,
                         behavior: 'smooth'
+                    });
+                };
+
+                testiPrevButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        scrollToClamped(testiTrack.scrollLeft - getStep());
                     });
                 });
 
-                testiNext.addEventListener('click', () => {
-                    testiTrack.scrollBy({
-                        left: getStep(),
-                        behavior: 'smooth'
+                testiNextButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        scrollToClamped(testiTrack.scrollLeft + getStep());
                     });
                 });
             }
