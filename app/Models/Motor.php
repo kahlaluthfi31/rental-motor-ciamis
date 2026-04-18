@@ -26,14 +26,10 @@ class Motor extends Model
         return $this->hasOne(RentalRate::class, 'motor_id');
     }
 
-    // Accessor untuk photo_url
-    // public function getPhotoUrlAttribute()
-    // {
-    //     if ($this->photo) {
-    //         return asset('storage/motor_photos/' . $this->photo);
-    //     }
-    //     return asset('images/default-motor.jpg');
-    // }
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'motor_id');
+    }
 
     public function owner()
     {
@@ -50,5 +46,18 @@ class Motor extends Model
     public function rentals()
     {
         return $this->hasMany(RentalRate::class);
+    }
+
+    public function getCompletedBookingsCount()
+    {
+        return $this->bookings()
+            ->where('status', 'selesai') // Sesuai dengan enum di tabel bookings
+            ->count();
+    }
+
+    public function getPhotoUrlAttribute($value)
+    {
+        // Langsung return asset URL
+        return asset($value);
     }
 }

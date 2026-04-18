@@ -16,6 +16,24 @@
             font-family: 'Poppins', sans-serif;
         }
     </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7c3aed',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
@@ -108,15 +126,50 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button data-modal-target="set-price-modal-{{ $motor->id }}" data-modal-toggle="set-price-modal-{{ $motor->id }}" class="text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full shadow-sm mr-2 transition-colors duration-200" type="button">
-                                            Setujui
+                                        <!-- Dropdown Button - PERBAIKAN: ID unik per motor -->
+                                        <button id="dropdownMenuIconButton-{{ $motor->id }}"
+                                            data-dropdown-toggle="dropdownDots-{{ $motor->id }}"
+                                            class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-full hover:bg-gray-100"
+                                            type="button">
+                                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
+                                                <path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                                            </svg>
                                         </button>
 
-                                        <form action="{{ route('admin.verifikasi.reject', $motor) }}" method="POST" class="inline-block">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Anda yakin akan menolak motor ini ?');" class="text-red-600 hover:text-red-900 transition-colors duration-200">Tolak</button>
-                                        </form>
+                                        <!-- Dropdown menu - PERBAIKAN: ID unik per motor -->
+                                        <div id="dropdownDots-{{ $motor->id }}"
+                                            class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
+                                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                                                aria-labelledby="dropdownMenuIconButton-{{ $motor->id }}">
+                                                <li>
+                                                    <button type="button"
+                                                        data-modal-target="detail-modal-{{ $motor->id }}"
+                                                        data-modal-toggle="detail-modal-{{ $motor->id }}"
+                                                        class="detail-btn block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                        Detail Motor
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button"
+                                                        data-modal-target="set-price-modal-{{ $motor->id }}"
+                                                        data-modal-toggle="set-price-modal-{{ $motor->id }}"
+                                                        class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                        Setujui
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                            <div class="py-2">
+                                                <form action="{{ route('admin.verifikasi.reject', $motor->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        onclick="return confirm('Anda yakin akan menolak motor ini?');"
+                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                                                        Tolak
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -170,6 +223,153 @@
     </div>
     @endforeach
 
+    <!-- Modal Detail untuk setiap motor -->
+    @foreach ($pendingMotors as $motor)
+    <!-- Detail Modal -->
+    <div id="detail-modal-{{ $motor->id }}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-4xl max-h-full">
+            <div class="relative bg-white rounded-lg shadow-lg border border-gray-200">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-900">
+                        Detail Motor - {{ $motor->brand }} {{ $motor->type_cc }}cc
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="detail-modal-{{ $motor->id }}">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="p-4 md:p-5 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Foto Motor -->
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 mb-3">Foto Motor</h4>
+                            <img class="w-full h-64 object-cover rounded-lg border border-gray-200" src="{{ asset($motor->photo_url) }}" alt="Foto Motor">
+                        </div>
+
+                        <!-- Foto STNK -->
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 mb-3">Foto STNK</h4>
+                            @if($motor->dokumen_kepemilikan)
+                            <img class="w-full h-64 object-contain rounded-lg border border-gray-200 bg-gray-50" src="{{ asset($motor->dokumen_kepemilikan) }}" alt="Foto STNK" id="stnk-image-{{ $motor->id }}">
+                            <div class="mt-2 flex space-x-2">
+                                <a href="{{ asset($motor->dokumen_kepemilikan) }}" download="STNK-{{ $motor->plate_number }}.jpg" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded">Lihat Dokumen (STNK/SIM)</a>
+                            </div>
+                            @else
+                            <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <span class="text-gray-500">Foto STNK tidak tersedia</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Informasi Detail -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 mb-3">Informasi Motor</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Brand/Type :</span>
+                                    <span class="font-medium">{{ $motor->brand }} {{ $motor->type_cc }}cc</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Plat Nomor :</span>
+                                    <span class="font-medium">{{ $motor->plate_number }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 mb-3">Informasi Pemilik</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Nama :</span>
+                                    <span class="font-medium">{{ $motor->owner->name }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Email :</span>
+                                    <span class="font-medium">{{ $motor->owner->email }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Telepon :</span>
+                                    <span class="font-medium">{{ $motor->owner->phone ?? '-' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b">
+                        <button data-modal-hide="detail-modal-{{ $motor->id }}" type="button" class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+    <script>
+        // Dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-btn')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                }
+            });
+
+            // Toggle dropdown
+            document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdownMenu = this.nextElementSibling;
+
+                    // Hide all other dropdowns
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        if (menu !== dropdownMenu) {
+                            menu.classList.add('hidden');
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    dropdownMenu.classList.toggle('hidden');
+                });
+            });
+
+            // Modal functionality
+            window.toggleModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                modal.classList.toggle('hidden');
+            };
+
+            // Close modal when clicking outside
+            document.querySelectorAll('[data-modal-hide]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal-hide');
+                    const modal = document.getElementById(modalId);
+                    modal.classList.add('hidden');
+                });
+            });
+        });
+
+        // Zoom functionality for STNK image
+        function zoomImage(imageId) {
+            const img = document.getElementById(imageId);
+            if (img.classList.contains('zoom-in')) {
+                img.classList.remove('zoom-in');
+                img.classList.add('zoom-out');
+                img.style.transform = 'scale(1)';
+            } else {
+                img.classList.remove('zoom-out');
+                img.classList.add('zoom-in');
+                img.style.transform = 'scale(1.5)';
+            }
+        }
+    </script>
 </body>
 
 </html>

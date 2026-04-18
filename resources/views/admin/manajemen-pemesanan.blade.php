@@ -55,10 +55,10 @@
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Penyewa
+                                        Motor
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Motor
+                                        Penyewa
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Periode Sewa
@@ -78,14 +78,6 @@
                                 @foreach ($pendingBookings as $booking)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $booking->renter->name }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ $booking->renter->email }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
                                                 <img class="h-10 w-10 rounded-full" src="{{ asset($booking->motor->photo_url) }}" alt="">
@@ -98,6 +90,14 @@
                                                     {{ $booking->motor->plate_number }}
                                                 </div>
                                             </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $booking->renter->name }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ $booking->renter->email }}
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -132,7 +132,7 @@
                                         <form action="{{ route('admin.pemesanan.reject', $booking) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Anda yakin akan menolak motor ini ?');" class="text-red-600 hover:text-red-900 transition duration-200 ease-in-out transform hover:scale-105">Tolak</button>
+                                            <button type="submit" onclick="return confirm('Anda yakin akan menolak pesanan ini ?');" class="text-red-600 hover:text-red-900 transition duration-200 ease-in-out transform hover:scale-105">Tolak</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -141,6 +141,152 @@
                         </table>
                         @endif
                     </div>
+                </div>
+
+                <div class="mt-8 p-8 bg-white rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-purple-800 ml-4">Riwayat Pemesanan Semua Penyewa</h3>
+
+                        <!-- Filter Status -->
+                        <div class="flex space-x-2">
+                            <span class="text-sm text-gray-600">Filter Status:</span>
+                            <button class="status-filter-admin px-3 py-1 text-xs rounded bg-purple-100 text-purple-800" data-status="all">Semua</button>
+                            <button class="status-filter-admin px-3 py-1 text-xs rounded bg-gray-200 text-gray-700" data-status="pending">Menunggu</button>
+                            <button class="status-filter-admin px-3 py-1 text-xs rounded bg-green-100 text-green-800" data-status="disetujui">Disetujui</button>
+                            <button class="status-filter-admin px-3 py-1 text-xs rounded bg-blue-100 text-blue-800" data-status="selesai">Selesai</button>
+                            <button class="status-filter-admin px-3 py-1 text-xs rounded bg-red-100 text-red-800" data-status="dibatalkan">Dibatalkan</button>
+                        </div>
+                    </div>
+
+                    @if ($allBookingsAdmin->isEmpty())
+                    <div class="text-center py-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 mx-auto text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <h3 class="mt-2 text-lg font-medium text-gray-900">Belum ada riwayat pemesanan.</h3>
+                        <p class="mt-1 text-sm text-gray-500">Penyewa belum melakukan pemesanan motor.</p>
+                    </div>
+                    @else
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Motor
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Penyewa
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Periode Sewa
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Total Biaya
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tanggal Pesan
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="admin-bookings-table">
+                                @foreach ($allBookingsAdmin as $booking)
+                                <tr class="admin-booking-row" data-status="{{ $booking->status }}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                @if($booking->motor && $booking->motor->photo_url)
+                                                <img class="h-10 w-10 rounded-full object-cover" src="{{ asset($booking->motor->photo_url) }}" alt="{{ $booking->motor->brand }}">
+                                                @else
+                                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                    <span class="text-xs text-gray-500">No Image</span>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $booking->motor->brand ?? 'N/A' }} {{ $booking->motor->type_cc ?? '' }}cc
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    {{ $booking->motor->plate_number ?? 'N/A' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $booking->renter->name ?? 'N/A' }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ $booking->renter->email ?? 'N/A' }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ \Carbon\Carbon::parse($booking->tanggal_mulai)->format('d M Y') }} -
+                                        {{ \Carbon\Carbon::parse($booking->tanggal_selesai)->format('d M Y') }}
+                                        <div class="text-xs text-gray-400 capitalize">
+                                            ({{ $booking->duration_type }})
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                                        Rp {{ number_format($booking->total_biaya, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($booking->status == 'pending')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Menunggu Pembayaran
+                                        </span>
+                                        @elseif($booking->status == 'disetujui')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Disetujui
+                                        </span>
+                                        @elseif($booking->status == 'selesai')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            Selesai
+                                        </span>
+                                        @elseif($booking->status == 'dibatalkan')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Dibatalkan
+                                        </span>
+                                        @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            {{ $booking->status }}
+                                        </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('d M Y H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        @if($booking->status == 'pending')
+                                        <div class="flex space-x-2">
+                                            <form action="{{ route('admin.pemesanan.approve', $booking) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                <button type="submit" class="text-green-600 hover:text-green-900 text-xs">Setujui</button>
+                                            </form>
+                                            <span class="text-gray-300">|</span>
+                                            <form action="{{ route('admin.pemesanan.reject', $booking) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" onclick="return confirm('Tolak pemesanan ini?')" class="text-red-600 hover:text-red-900 text-xs">Tolak</button>
+                                            </form>
+                                        </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    @if($allBookingsAdmin->hasPages())
+                    <div class="mt-4">
+                        {{ $allBookingsAdmin->links() }}
+                    </div>
+                    @endif
+                    @endif
                 </div>
             </div>
         </main>
@@ -199,6 +345,43 @@
             </div>
         </div>
     </div>
+    <script>
+        // Filter untuk admin bookings
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter status untuk admin
+            document.querySelectorAll('.status-filter-admin').forEach(button => {
+                button.addEventListener('click', function() {
+                    const status = this.getAttribute('data-status');
+
+                    // Update active button
+                    document.querySelectorAll('.status-filter-admin').forEach(btn => {
+                        btn.classList.remove('bg-purple-100', 'text-purple-800');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    this.classList.add('bg-purple-100', 'text-purple-800');
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+
+                    // Filter rows
+                    const rows = document.querySelectorAll('.admin-booking-row');
+                    rows.forEach(row => {
+                        if (status === 'all' || row.getAttribute('data-status') === status) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+
+        // Function untuk show detail booking (bisa dikembangkan)
+        function showBookingDetail(bookingId) {
+            // Implementasi modal detail booking
+            alert('Detail booking ID: ' + bookingId);
+            // Bisa diimplementasikan dengan modal atau redirect ke halaman detail
+            // window.location.href = '/admin/bookings/' + bookingId;
+        }
+    </script>
     <script>
         // Event listener untuk tombol approve
         document.querySelectorAll('.approve-btn').forEach(button => {

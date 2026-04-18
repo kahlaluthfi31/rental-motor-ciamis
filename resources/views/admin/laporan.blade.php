@@ -27,8 +27,18 @@
         <main class="flex-1">
             <div class="p-6">
                 <div class="max-w-7xl mx-auto my-5 p-6 bg-white rounded-lg shadow-md">
-                    <h1 class="text-lg font-bold text-purple-800 mb-6">Laporan & Pendapatan</h1>
+                    <!-- Ganti bagian h1 menjadi seperti ini: -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-lg font-bold text-purple-800">Laporan & Pendapatan</h1>
 
+                        <a href="{{ route('admin.laporan.download', 'word') }}"
+                            class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-purple-800 px-4 py-2 rounded-lg flex items-center text-sm font-medium shadow-lg transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Unduh Laporan
+                        </a>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="bg-gray-200 text-gray-800 p-6 rounded-lg shadow-sm flex items-center justify-between">
                             <div>
@@ -155,7 +165,7 @@
                             <!-- Footer dengan Total -->
                             <tfoot class="bg-gray-50 font-semibold">
                                 <tr>
-                                    <td colspan="4" class="px-6 py-4 text-right text-sm text-gray-700">Total:</td>
+                                    <td colspan="4" class="px-6 py-4 text-right text-sm text-gray-700">Total :</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                                         Rp {{ number_format($totalGrossRevenue, 0, ',', '.') }}
                                     </td>
@@ -170,10 +180,119 @@
                         </table>
                         @endif
                     </div>
+                    <div class="overflow-x-auto mt-10">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Rating Tertinggi Motor</h3>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Peringkat
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Merek & Tipe
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Nomor Polisi
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Jumlah Sewa
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Pendapatan Dihasilkan
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($popularMotors as $index => $motor)
+                                <tr class="transition-colors duration-150 hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            @if($index == 0)
+                                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">#1</span>
+                                            @elseif($index == 1)
+                                            <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">#2</span>
+                                            @elseif($index == 2)
+                                            <span class="bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">#3</span>
+                                            @else
+                                            <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">#{{ $index + 1 }}</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            @if($motor->photo_url)
+                                            <img class="h-10 w-10 rounded-full mr-4 object-cover" src="{{ asset($motor->photo_url) }}" alt="{{ $motor->brand }}">
+                                            @else
+                                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                                                <span class="text-xs text-gray-500">No Image</span>
+                                            </div>
+                                            @endif
+                                            <div>
+                                                <div class="text-sm font-semibold text-gray-900">{{ $motor->brand }}</div>
+                                                <div class="text-xs text-gray-500">{{ $motor->type_cc }}cc</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        {{ $motor->plate_number }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                @if($motor->status == 'tersedia') bg-green-100 text-green-800
+                                                @elseif($motor->status == 'disewa') bg-red-100 text-red-800
+                                                @elseif($motor->status == 'maintenance') bg-yellow-100 text-yellow-800
+                                                @else bg-gray-100 text-gray-800 @endif">
+                                            {{ ucfirst($motor->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-bold text-gray-800">{{ $motor->rentals_count }}</div>
+                                        <div class="text-xs text-gray-500">kali disewa</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                                        <!-- Asumsikan ada field total_revenue di model Motor -->
+                                        Rp {{ number_format($motor->total_revenue ?? 0, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-10 text-center text-base text-gray-500">
+                                        <svg class="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <h3 class="mt-2 text-md font-medium text-gray-600">Belum ada data penyewaan.</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Data akan muncul setelah ada motor yang disewa.</p>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
+    <script>
+        // script untuk dropdown unduh
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownButton = document.getElementById('dropdown-button');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+
+            dropdownButton.addEventListener('click', function() {
+                dropdownMenu.classList.toggle('hidden');
+            });
+
+            // Menutup dropdown saat klik di luar area menu
+            document.addEventListener('click', function(event) {
+                if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

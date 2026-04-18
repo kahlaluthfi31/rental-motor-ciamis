@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                    <h2 class="text-lg font-bold text-gray-900 mb-6">Daftar Motor Saya</h2>
+                    <h2 class="text-lg font-bold text-purple-800 mb-6">Daftar Motor Saya</h2>
                     <div class="overflow-x-auto">
                         @if($motors->isEmpty())
                         <div class="text-center py-10 text-gray-500 text-base">

@@ -27,7 +27,7 @@
         <main class="flex-1">
             <div class="p-6">
                 <div class="max-w-8xl p-6 bg-white rounded-lg shadow-md">
-                    <h2 class="text-xl font-bold text-purple-800 mb-6">Cari Motor</h2>
+                    <h2 class="text-xl font-bold text-purple-800 mb-6">Cari dan Sewa Motor</h2>
 
                     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
                         <form action="{{ route('penyewa.cari-motor') }}" method="GET" class="flex flex-wrap md:flex-nowrap items-center gap-4">
@@ -73,16 +73,16 @@
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                             <img class="w-full h-48 object-cover" src="{{ asset($motor->photo_url) }}" alt="{{ $motor->brand }}">
                             <div class="p-4">
-                                <h4 class="text-xl font-bold text-gray-900">{{ $motor->brand }} {{ $motor->type_cc }}cc</h4>
-                                <p class="text-gray-500 mt-1">Plat : {{ $motor->plate_number }}</p>
-                                @if($motor->rentalRates)
-                                <!--GUNAKAN harian BUKAN daily_rate -->
-                                <p class="text-lg font-semibold text-blue-600 mt-2">
-                                    Rp {{ number_format($motor->rentalRates->harian, 0, ',', '.') }} / hari
+                                <h4 class="text-xl font-bold text-gray-900">{{ $motor->brand }}</h4>
+                                <p class="text-gray-500 mt-1">Tipe : {{ $motor->type_cc }}cc</p>
+                                <p class="text-gray-500">Plat : {{ $motor->plate_number }}</p>
+                                <p class="text-gray-500 text-sm mt-1">
+                                    @if($motor->bookings_count > 0)
+                                    Sudah disewa {{ $motor->bookings_count }} kali
+                                    @else
+                                    Belum pernah disewa
+                                    @endif
                                 </p>
-                                @else
-                                <p class="text-red-500 text-sm mt-2">Harga belum tersedia</p>
-                                @endif
 
                                 <button type="button"
                                     class="mt-4 inline-block w-full bg-purple-600 text-white text-center py-2 rounded-lg font-semibold hover:bg-purple-500 transition-colors duration-200"

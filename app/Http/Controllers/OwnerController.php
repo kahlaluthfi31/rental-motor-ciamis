@@ -58,18 +58,18 @@ class OwnerController extends Controller
         try {
             Log::info('StoreMotor called', ['request' => $request->all()]);
 
-            // Validasi data yang masuk
+            // Validasi data yang masuk - DOKUMEN_KEPEMILIKAN SEKARANG IMAGE
             $validated = $request->validate([
                 'brand' => 'required|string|max:255',
                 'type_cc' => 'required|string|max:255',
                 'plate_number' => 'required|string|max:20|unique:motors,plate_number',
                 'photo_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
-                'dokumen_kepemilikan' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+                'dokumen_kepemilikan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // UBAH: image bukan file
             ]);
 
             Log::info('Validation passed', ['validated' => $validated]);
 
-            // Unggah foto
+            // Unggah foto motor
             if ($request->hasFile('photo_url')) {
                 $path = $request->file('photo_url')->store('motor_photos', 'public');
                 Log::info('Photo uploaded', ['path' => $path]);
@@ -86,11 +86,11 @@ class OwnerController extends Controller
 
             Log::info('Motor data prepared', ['motor' => $motor->toArray()]);
 
-            // Upload dokumen kepemilikan jika ada
+            // Upload dokumen kepemilikan (foto STNK) jika ada
             if ($request->hasFile('dokumen_kepemilikan')) {
                 $docPath = $request->file('dokumen_kepemilikan')->store('motor_documents', 'public');
                 $motor->dokumen_kepemilikan = 'storage/' . $docPath;
-                Log::info('Document uploaded', ['docPath' => $docPath]);
+                Log::info('Document STNK uploaded', ['docPath' => $docPath]);
             }
 
             $motor->save();
@@ -156,16 +156,16 @@ class OwnerController extends Controller
             'type_cc' => 'required|in:100,125,150',
             'plate_number' => 'required|string|max:255|unique:motors,plate_number,' . $motor->id,
             'photo_url' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
-            'dokumen_kepemilikan' => 'nullable|file|mimes:pdf,doc,docx|max:5120', // TAMBAHAN: Validasi dokumen
+            'dokumen_kepemilikan' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // UBAH: image bukan file
         ]);
 
-        // Upload foto jika ada
+        // Upload foto motor jika ada
         if ($request->hasFile('photo_url')) {
             $path = $request->file('photo_url')->store('motor-photos', 'public');
             $validated['photo_url'] = 'storage/' . $path;
         }
 
-        // Upload dokumen kepemilikan jika ada
+        // Upload dokumen kepemilikan (foto STNK) jika ada
         if ($request->hasFile('dokumen_kepemilikan')) {
             $path = $request->file('dokumen_kepemilikan')->store('motor-documents', 'public');
             $validated['dokumen_kepemilikan'] = 'storage/' . $path;

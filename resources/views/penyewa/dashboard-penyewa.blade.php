@@ -92,7 +92,7 @@
                 </div>
 
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                    <h2 class="text-xl font-bold mb-6 text-gray-900">Motor Paling Sering Disewa</h2>
+                    <h2 class="text-xl font-bold mb-6 text-purple-800">Motor Paling Sering Disewa</h2>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -115,8 +115,19 @@
                                 @forelse ($popularMotors as $motor)
                                 <tr class="transition-colors duration-150 hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $motor->brand }}</div>
-                                        <div class="text-xs text-gray-500">{{ $motor->type_cc }}cc</div>
+                                        <div class="flex items-center">
+                                            @if($motor->photo_url)
+                                            <img class="h-10 w-10 rounded-full mr-4" src="{{ asset($motor->photo_url) }}" alt="">
+                                            @else
+                                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                                                <span class="text-xs text-gray-500">No Image</span>
+                                            </div>
+                                            @endif
+                                            <div>
+                                                <div class="text-sm font-semibold text-gray-900">{{ $motor->brand }}</div>
+                                                <div class="text-xs text-gray-500">{{ $motor->type_cc }}cc</div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                         {{ $motor->plate_number }}

@@ -12,6 +12,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <style>
+        /* untuk preview */
+        .border-dashed {
+            transition: all 0.3s ease;
+        }
+
+        .border-dashed.dragover {
+            border-color: #8b5cf6;
+            background-color: #faf5ff;
+        }
+    </style>
+    <style>
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -149,7 +160,7 @@
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <div class="flex space-x-3 items-center">
                                         @if($motor->status != 'pending_verification')
-                                        <button onclick="openEditModal('{{ $motor->id }}', '{{ $motor->brand }}', '{{ $motor->type_cc }}', '{{ $motor->plate_number }}', '{{ asset($motor->photo_url) }}')"
+                                        <button onclick="openEditModal('{{ $motor->id }}', '{{ $motor->brand }}', '{{ $motor->type_cc }}', '{{ $motor->plate_number }}', '{{ asset($motor->photo_url) }}', '{{ asset($motor->dokumen_kepemilikan) }}')"
                                             class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 font-medium">
                                             Edit
                                         </button>
@@ -201,42 +212,60 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                         </div>
                         <div>
-                            <label for="edit_dokumen_kepemilikan" class="block text-sm font-medium text-gray-700 mb-2">Dokumen Kepemilikan (Opsional)</label>
-                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200">
-                                <div class="space-y-1 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.26-3.26a4 4 0 00-5.66 0L16 26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <div class="flex text-sm text-gray-600">
-                                        <label for="edit_dokumen_kepemilikan" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
-                                            <span>Unggah file</span>
-                                            <input id="edit_dokumen_kepemilikan" name="dokumen_kepemilikan" type="file" class="sr-only">
-                                        </label>
-                                        <p class="pl-1">atau seret dan lepas</p>
-                                    </div>
-                                    <p class="text-xs text-gray-500">PDF, DOC, DOCX hingga 5MB</p>
-                                </div>
-                            </div>
-                            <div id="currentDocument" class="mt-4 text-center text-sm text-gray-600"></div>
-                        </div>
-                        <div>
                             <label for="edit_photo_url" class="block text-sm font-medium text-gray-700 mb-2">Foto Motor (Opsional)</label>
-                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200">
-                                <div class="space-y-1 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.26-3.26a4 4 0 00-5.66 0L16 26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+                            <!-- Area Upload -->
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200" id="editPhotoUploadArea">
+                                <div class="space-y-1 text-center" id="editPhotoUploadContent">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                                     </svg>
                                     <div class="flex text-sm text-gray-600">
                                         <label for="edit_photo_url" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
                                             <span>Unggah file</span>
-                                            <input id="edit_photo_url" name="photo_url" type="file" class="sr-only">
+                                            <input id="edit_photo_url" name="photo_url" type="file" class="sr-only" accept="image/*" onchange="previewEditImage(this, 'editPhotoPreview', 'currentPhoto')">
                                         </label>
                                         <p class="pl-1">atau seret dan lepas</p>
                                     </div>
                                     <p class="text-xs text-gray-500">PNG, JPG, JPEG hingga 5MB</p>
                                 </div>
+                                <!-- Preview Image Baru -->
+                                <div id="editPhotoPreview" class="hidden"></div>
                             </div>
-                            <div id="currentPhoto" class="mt-4 text-center text-sm text-gray-600"></div>
+
+                            <!-- Tampilkan Foto Saat Ini -->
+                            <div id="currentPhoto" class="mt-4 text-center">
+                                <!-- Akan diisi oleh JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Dokumen Kepemilikan STNK -->
+                        <div class="mt-6">
+                            <label for="edit_dokumen_kepemilikan" class="block text-sm font-medium text-gray-700 mb-2">Dokumen Kepemilikan STNK (Opsional)</label>
+
+                            <!-- Area Upload -->
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200" id="editDocUploadArea">
+                                <div class="space-y-1 text-center" id="editDocUploadContent">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="edit_dokumen_kepemilikan" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
+                                            <span>Unggah foto</span>
+                                            <input id="edit_dokumen_kepemilikan" name="dokumen_kepemilikan" type="file" class="sr-only" accept="image/*" onchange="previewEditImage(this, 'editDocPreview', 'currentDocument')">
+                                        </label>
+                                        <p class="pl-1">atau seret dan lepas</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, JPEG (Foto STNK) hingga 5MB</p>
+                                </div>
+                                <!-- Preview Image Baru -->
+                                <div id="editDocPreview" class="hidden"></div>
+                            </div>
+
+                            <!-- Tampilkan Dokumen Saat Ini -->
+                            <div id="currentDocument" class="mt-4 text-center">
+                                <!-- Akan diisi oleh JavaScript -->
+                            </div>
                         </div>
                     </div>
                     <div class="mt-6 flex justify-end space-x-3">
@@ -332,17 +361,12 @@
                                         </svg>
                                     </span>
                                     <select name="type_cc" id="type_cc" required
-                                        class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none">
+                                        class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                                         <option value="">Pilih Tipe CC</option>
                                         <option value="100" {{ old('type_cc') == '100' ? 'selected' : '' }}>100cc</option>
                                         <option value="125" {{ old('type_cc') == '125' ? 'selected' : '' }}>125cc</option>
                                         <option value="150" {{ old('type_cc') == '150' ? 'selected' : '' }}>150cc</option>
                                     </select>
-                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </span>
                                 </div>
                             </div>
 
@@ -364,40 +388,44 @@
 
                             <div>
                                 <label for="photo_url" class="block text-sm font-medium text-gray-700 mb-1">Foto Motor</label>
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200">
-                                    <div class="space-y-1 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.26-3.26a4 4 0 00-5.66 0L16 26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200" id="photoUploadArea">
+                                    <div class="space-y-1 text-center" id="photoUploadContent">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                                         </svg>
                                         <div class="flex text-sm text-gray-600">
                                             <label for="photo_url" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
                                                 <span>Unggah file</span>
-                                                <input id="photo_url" name="photo_url" type="file" class="sr-only" required>
+                                                <input id="photo_url" name="photo_url" type="file" class="sr-only" accept="image/*" required onchange="previewImage(this, 'photoPreview')">
                                             </label>
                                             <p class="pl-1">atau seret dan lepas</p>
                                         </div>
                                         <p class="text-xs text-gray-500">PNG, JPG, JPEG hingga 5MB</p>
                                     </div>
+                                    <!-- Preview Image akan muncul di sini -->
+                                    <div id="photoPreview" class="hidden"></div>
                                 </div>
                             </div>
 
-                            <!-- TAMBAHAN: Field Dokumen Kepemilikan -->
+                            <!-- Dokumen Kepemilikan STNK -->
                             <div>
-                                <label for="dokumen_kepemilikan" class="block text-sm font-medium text-gray-700 mb-1">Dokumen Kepemilikan</label>
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200">
-                                    <div class="space-y-1 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.26-3.26a4 4 0 00-5.66 0L16 26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <label for="dokumen_kepemilikan" class="block text-sm font-medium text-gray-700 mb-1">Dokumen Kepemilikan STNK</label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer hover:border-purple-500 transition-colors duration-200" id="docUploadArea">
+                                    <div class="space-y-1 text-center" id="docUploadContent">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                                         </svg>
                                         <div class="flex text-sm text-gray-600">
                                             <label for="dokumen_kepemilikan" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
-                                                <span>Unggah file</span>
-                                                <input id="dokumen_kepemilikan" name="dokumen_kepemilikan" type="file" class="sr-only">
+                                                <span>Unggah foto</span>
+                                                <input id="dokumen_kepemilikan" name="dokumen_kepemilikan" type="file" class="sr-only" accept="image/*" onchange="previewImage(this, 'docPreview')">
                                             </label>
                                             <p class="pl-1">atau seret dan lepas</p>
                                         </div>
-                                        <p class="text-xs text-gray-500">PDF, DOC, DOCX hingga 5MB</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG Foto STNK hingga 5MB</p>
                                     </div>
+                                    <!-- Preview Image akan muncul di sini -->
+                                    <div id="docPreview" class="hidden"></div>
                                 </div>
                             </div>
 
@@ -412,6 +440,262 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Fungsi untuk menampilkan gambar saat ini
+        function displayCurrentImage(containerId, imageUrl, title) {
+            const container = document.getElementById(containerId);
+
+            if (imageUrl) {
+                container.innerHTML = `
+            <div class="bg-gray-50 p-3 rounded-lg">
+                <p class="text-sm font-medium text-gray-700 mb-2">${title}</p>
+                <img src="${imageUrl}" alt="${title}" class="mx-auto h-32 w-32 object-cover rounded-lg border-2 border-gray-300">
+                <p class="text-xs text-gray-500 mt-2">Gambar saat ini akan diganti jika mengupload file baru</p>
+            </div>
+        `;
+            } else {
+                container.innerHTML = `
+            <div class="bg-yellow-50 p-3 rounded-lg">
+                <p class="text-sm font-medium text-yellow-700">${title} belum tersedia</p>
+                <p class="text-xs text-yellow-600 mt-1">Upload file baru untuk menambahkan ${title.toLowerCase()}</p>
+            </div>
+        `;
+            }
+        }
+
+        // Fungsi preview untuk edit form
+        function previewEditImage(input, previewId, currentContainerId) {
+            const previewContainer = document.getElementById(previewId);
+            const uploadArea = input.closest('.border-dashed');
+            const uploadContent = uploadArea.querySelector('.space-y-1');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Sembunyikan konten upload default
+                    uploadContent.classList.add('hidden');
+
+                    // Tampilkan preview gambar baru
+                    previewContainer.innerHTML = `
+                <div class="text-center">
+                    <p class="text-sm font-medium text-purple-600 mb-2">Preview Gambar Baru</p>
+                    <img src="${e.target.result}" alt="Preview" class="mx-auto h-32 w-32 object-cover rounded-lg border-2 border-purple-300">
+                    <div class="mt-2 flex justify-center space-x-2">
+                        <button type="button" onclick="changeEditImage(this)" class="text-sm text-purple-600 hover:text-purple-500 font-medium">
+                            Ganti Foto
+                        </button>
+                        <button type="button" onclick="removeEditImage(this, '${previewId}', '${currentContainerId}')" class="text-sm text-red-600 hover:text-red-500 font-medium">
+                            Batal
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${input.files[0].name}</p>
+                </div>
+            `;
+                    previewContainer.classList.remove('hidden');
+
+                    // Sembunyikan gambar saat ini ketika ada preview baru
+                    const currentContainer = document.getElementById(currentContainerId);
+                    currentContainer.style.opacity = '0.5';
+                    currentContainer.style.transition = 'opacity 0.3s';
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function changeEditImage(button) {
+            const previewContainer = button.closest('.text-center').parentElement;
+            const previewId = previewContainer.id;
+            const inputId = previewId === 'editPhotoPreview' ? 'edit_photo_url' : 'edit_dokumen_kepemilikan';
+            const currentContainerId = previewId === 'editPhotoPreview' ? 'currentPhoto' : 'currentDocument';
+
+            // Trigger click pada input file
+            document.getElementById(inputId).click();
+        }
+
+        function removeEditImage(button, previewId, currentContainerId) {
+            const previewContainer = document.getElementById(previewId);
+            const uploadArea = previewContainer.closest('.border-dashed');
+            const uploadContent = uploadArea.querySelector('.space-y-1');
+            const inputId = previewId === 'editPhotoPreview' ? 'edit_photo_url' : 'edit_dokumen_kepemilikan';
+            const currentContainer = document.getElementById(currentContainerId);
+
+            // Reset input file
+            document.getElementById(inputId).value = '';
+
+            // Sembunyikan preview
+            previewContainer.classList.add('hidden');
+            previewContainer.innerHTML = '';
+
+            // Tampilkan kembali konten upload default
+            uploadContent.classList.remove('hidden');
+
+            // Kembalikan opacity gambar saat ini ke normal
+            currentContainer.style.opacity = '1';
+        }
+
+        // Drag and drop untuk edit form
+        ['editPhotoUploadArea', 'editDocUploadArea'].forEach(areaId => {
+            const area = document.getElementById(areaId);
+            const inputId = areaId === 'editPhotoUploadArea' ? 'edit_photo_url' : 'edit_dokumen_kepemilikan';
+            const previewId = areaId === 'editPhotoUploadArea' ? 'editPhotoPreview' : 'editDocPreview';
+            const currentContainerId = areaId === 'editPhotoUploadArea' ? 'currentPhoto' : 'currentDocument';
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop area
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                area.classList.add('border-purple-500', 'bg-purple-50');
+            }
+
+            function unhighlight() {
+                area.classList.remove('border-purple-500', 'bg-purple-50');
+            }
+
+            // Handle dropped files
+            area.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    const input = document.getElementById(inputId);
+                    input.files = files;
+                    previewEditImage(input, previewId, currentContainerId);
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // untuk preview titip
+        function previewImage(input, previewId) {
+            const previewContainer = document.getElementById(previewId);
+            const uploadArea = input.closest('.border-dashed');
+            const uploadContent = uploadArea.querySelector('.space-y-1');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Sembunyikan konten upload default
+                    uploadContent.classList.add('hidden');
+
+                    // Tampilkan preview
+                    previewContainer.innerHTML = `
+                <div class="text-center">
+                    <img src="${e.target.result}" alt="Preview" class="mx-auto h-32 w-32 object-cover rounded-lg border-2 border-purple-300">
+                    <div class="mt-2 flex justify-center space-x-2">
+                        <button type="button" onclick="changeImage(this)" class="text-sm text-purple-600 hover:text-purple-500 font-medium">
+                            Ganti Foto
+                        </button>
+                        <button type="button" onclick="removeImage(this, '${previewId}')" class="text-sm text-red-600 hover:text-red-500 font-medium">
+                            Hapus
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${input.files[0].name}</p>
+                </div>
+            `;
+                    previewContainer.classList.remove('hidden');
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function changeImage(button) {
+            const previewContainer = button.closest('.text-center').parentElement;
+            const previewId = previewContainer.id;
+            const inputId = previewId === 'photoPreview' ? 'photo_url' : 'dokumen_kepemilikan';
+
+            // Trigger click pada input file yang sesuai
+            document.getElementById(inputId).click();
+        }
+
+        function removeImage(button, previewId) {
+            const previewContainer = document.getElementById(previewId);
+            const uploadArea = previewContainer.closest('.border-dashed');
+            const uploadContent = uploadArea.querySelector('.space-y-1');
+            const inputId = previewId === 'photoPreview' ? 'photo_url' : 'dokumen_kepemilikan';
+
+            // Reset input file
+            document.getElementById(inputId).value = '';
+
+            // Sembunyikan preview
+            previewContainer.classList.add('hidden');
+            previewContainer.innerHTML = '';
+
+            // Tampilkan kembali konten upload default
+            uploadContent.classList.remove('hidden');
+        }
+
+        // Drag and drop functionality
+        ['photoUploadArea', 'docUploadArea'].forEach(areaId => {
+            const area = document.getElementById(areaId);
+            const inputId = areaId === 'photoUploadArea' ? 'photo_url' : 'dokumen_kepemilikan';
+            const previewId = areaId === 'photoUploadArea' ? 'photoPreview' : 'docPreview';
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                area.classList.add('border-purple-500', 'bg-purple-50');
+            }
+
+            function unhighlight() {
+                area.classList.remove('border-purple-500', 'bg-purple-50');
+            }
+
+            // Handle dropped files
+            area.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    const input = document.getElementById(inputId);
+                    input.files = files;
+                    previewImage(input, previewId);
+                }
+            }
+        });
+    </script>
 
     <script>
         // Fungsi untuk membuka modal edit
@@ -429,33 +713,19 @@
             // Set action form
             form.action = `/pemilik/titip-motor/${motorId}`;
 
-            // Tampilkan foto saat ini jika ada
-            if (photoUrl) {
-                currentPhoto.innerHTML = `<p class="font-medium">Foto saat ini:</p><img src="${photoUrl}" class="mt-2 mx-auto h-32 object-contain rounded-lg border border-gray-200 p-1 shadow-sm">`;
-            } else {
-                currentPhoto.innerHTML = '<p class="text-gray-500">Tidak ada foto saat ini</p>';
-            }
-
-            // Tampilkan dokumen saat ini jika ada
-            if (dokumenKepemilikan) {
-                currentDocument.innerHTML = `<p class="font-medium">Dokumen saat ini:</p>
-                <a href="${dokumenKepemilikan}" target="_blank" class="mt-2 inline-flex items-center px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors duration-200">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Lihat Dokumen
-                </a>`;
-            } else {
-                currentDocument.innerHTML = '<p class="text-gray-500">Tidak ada dokumen saat ini</p>';
-            }
+            // Tampilkan gambar saat ini menggunakan fungsi displayCurrentImage
+            displayCurrentImage('currentPhoto', photoUrl, 'Foto Motor Saat Ini');
+            displayCurrentImage('currentDocument', dokumenKepemilikan, 'Dokumen STNK Saat Ini');
 
             // Tampilkan modal
             modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
 
         // Fungsi untuk menutup modal edit
         function closeEditModal() {
             document.getElementById('editMotorModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
 
         // Fungsi untuk membuka modal hapus
@@ -481,11 +751,13 @@
 
             // Tampilkan modal
             modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
 
         // Fungsi untuk menutup modal hapus
         function closeDeleteModal() {
             document.getElementById('deleteConfirmModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
 
         // Konfirmasi sebelum mengupdate data
@@ -505,6 +777,14 @@
             }
 
             if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Tutup modal dengan ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditModal();
                 closeDeleteModal();
             }
         });

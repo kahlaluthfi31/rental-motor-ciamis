@@ -1,12 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\RenterController;
+use App\Models\Motor;
 
 
 // Auth Routes
@@ -32,6 +33,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/laporan', [AdminController::class, 'laporanKeuangan'])->name('admin.laporan');
     // Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
 
+    // untuk route unduh laporan
+    Route::get('/laporan/download/{format}', [AdminController::class, 'downloadLaporan'])
+        ->name('admin.laporan.download');
+
     // Routes untuk Verifikasi Motor
     // Route::post('/verifikasi/approve/{motor}', [AdminController::class, 'approveMotor'])->name('admin.verifikasi.approve');
     // Route::delete('/verifikasi/reject/{motor}', [AdminController::class, 'rejectMotor'])->name('admin.verifikasi.reject');
@@ -48,6 +53,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     // Rute untuk Manajemen Harga
     Route::put('/manajemen-harga/{motor}', [AdminController::class, 'updateRentalRate'])->name('admin.manajemen-harga.update');
     Route::put('/manajemen-harga/{motor}/set-available', [AdminController::class, 'setMotorAvailable'])->name('admin.motor.set-available');
+
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/chart-data', [AdminController::class, 'getChartData'])->name('admin.chart.data');
+    Route::get('/available-years', [AdminController::class, 'getAvailableYears'])->name('admin.available.years');
+    Route::post('/pemesanan/{booking}/complete', [AdminController::class, 'completeBooking'])->name('admin.pemesanan.complete');
 });
 
 // Owner Routes
@@ -72,9 +82,46 @@ Route::prefix('penyewa')->middleware(['auth', 'role:penyewa,admin'])->group(func
     Route::get('/pemesanan', [RenterController::class, 'showAllBookings'])->name('penyewa.pemesanan');
     Route::get('/pemesanan/{motorId}', [RenterController::class, 'showBookingForm'])->name('penyewa.show-pemesanan');
     Route::post('/pemesanan/{motorId}', [RenterController::class, 'processBooking'])->name('penyewa.processBooking');
-    Route::post('/bookings/{booking}/cancel', [RenterController::class, 'cancelBooking'])->name('penyewa.cancelBooking');
+    Route::delete('/bookings/{booking}/cancel', [RenterController::class, 'cancelBooking'])->name('penyewa.cancelBooking');
 });
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (Request $request) {
+    $brand = trim((string) $request->query('brand', ''));
+    $typeCc = trim((string) $request->query('type_cc', ''));
+
+    $isSearching = $brand !== '' || $typeCc !== '';
+
+    if (!Schema::hasTable('motors') || !Schema::hasTable('bookings')) {
+        $motors = collect();
+        $showcaseMotors = collect();
+        return view('welcome', compact('motors', 'showcaseMotors', 'isSearching', 'brand', 'typeCc'));
+    }
+
+    $showcaseMotors = Motor::where('status', 'tersedia')
+        ->has('rentalRates')
+        ->orderBy('brand')
+        ->get(['id', 'brand', 'type_cc', 'photo_url']);
+
+    $motorsQuery = Motor::with('rentalRates')
+        ->withCount([
+            'bookings as completed_bookings_count' => function ($query) {
+                $query->where('status', 'selesai');
+            }
+        ])
+        ->where('status', 'tersedia');
+
+    if ($brand !== '') {
+        $motorsQuery->where('brand', 'like', '%' . $brand . '%');
+    }
+
+    if ($typeCc !== '') {
+        $motorsQuery->where('type_cc', $typeCc);
+    }
+
+    $motors = $motorsQuery
+        ->orderByDesc('completed_bookings_count')
+        ->limit(4)
+        ->get();
+
+    return view('welcome', compact('motors', 'showcaseMotors', 'isSearching', 'brand', 'typeCc'));
 });

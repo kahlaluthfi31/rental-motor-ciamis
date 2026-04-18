@@ -39,72 +39,68 @@
                     <p class="mt-2 text-sm text-gray-400">Silakan kembali lagi setelah ada penyewaan yang selesai.</p>
                 </div>
                 @else
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Motor
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Penyewa
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Tanggal Sewa
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Biaya Total
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Pendapatan Anda
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($revenueData as $data)
-                        <tr class="hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 w-12 h-12 p-1">
-                                        <img class="w-full h-full rounded-full object-cover shadow-sm"
-                                            src="{{ asset($data->photo_url) }}"
-                                            alt="{{ $data->brand }} {{ $data->type_cc }}">
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Motor
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Tanggal Sewa
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Biaya Total
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Pendapatan Anda
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($revenueData as $data)
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 w-12 h-12 p-1">
+                                            <img class="w-full h-full rounded-full object-cover shadow-sm"
+                                                src="{{ asset($data->photo_url) }}"
+                                                alt="{{ $data->brand }} {{ $data->type_cc }}">
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $data->brand }} {{ $data->type_cc }}cc</div>
+                                            <div class="text-xs text-gray-500">{{ $data->plate_number }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $data->brand }} {{ $data->type_cc }}cc</div>
-                                        <div class="text-xs text-gray-500">{{ $data->plate_number }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{-- Jika perlu nama penyewa, harus join users table --}}
-                                Penyewa #{{ $data->renter_id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($data->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($data->tanggal_selesai)->format('d M Y') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                <!-- Total biaya = pemilik_share + admin_share -->
-                                Rp {{ number_format($data->pemilik_share + $data->admin_share, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
-                                <!-- Pendapatan pemilik dari revenue_sharings -->
-                                Rp {{ number_format($data->pemilik_share, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="bg-gray-50 font-semibold">
-                        <tr>
-                            <td colspan="3" class="px-6 py-4 text-right text-sm text-gray-700">Total:</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                Rp {{ number_format($totalGrossRevenue, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">
-                                Rp {{ number_format($ownerShare, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ \Carbon\Carbon::parse($data->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($data->tanggal_selesai)->format('d M Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                    <!-- Total biaya = pemilik_share + admin_share -->
+                                    Rp {{ number_format($data->pemilik_share + $data->admin_share, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+                                    <!-- Pendapatan pemilik dari revenue_sharings -->
+                                    Rp {{ number_format($data->pemilik_share, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="bg-gray-50 font-semibold">
+                            <tr>
+                                <td colspan="2" class="px-6 py-4 text-right text-sm text-gray-700">Total :</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    Rp {{ number_format($totalGrossRevenue, 0, ',', '.') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">
+                                    Rp {{ number_format($ownerShare, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
                 @endif
             </div>
         </main>

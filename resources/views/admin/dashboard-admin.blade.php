@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -100,9 +101,106 @@
                     </div>
                 </div>
 
+                <!-- CHART SECTION -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-purple-800">Grafik Penyewaan</h3>
+                        <div class="flex space-x-4 items-center">
+                            <!-- Dropdown Tahun -->
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm text-gray-600">Tahun :</label>
+                                <select id="yearFilter" class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+
+                            <!-- Dropdown Bulan (hanya tampil untuk periode harian) -->
+                            <div class="flex items-center space-x-2" id="monthFilterContainer" style="display: none;">
+                                <label class="text-sm text-gray-600">Bulan :</label>
+                                <select id="monthFilter" class="w-40 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200">
+                                    <option value="1">Januari</option>
+                                    <option value="2">Februari</option>
+                                    <option value="3">Maret</option>
+                                    <option value="4">April</option>
+                                    <option value="5">Mei</option>
+                                    <option value="6">Juni</option>
+                                    <option value="7">Juli</option>
+                                    <option value="8">Agustus</option>
+                                    <option value="9">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                            </div>
+
+                            <!-- Button Periode -->
+                            <div class="flex space-x-2">
+                                <button onclick="changePeriod('daily')" class="period-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition">Harian</button>
+                                <button onclick="changePeriod('weekly')" class="period-btn bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition">Mingguan</button>
+                                <button onclick="changePeriod('monthly')" class="period-btn bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition">Bulanan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="rentalChart"></canvas>
+                    </div>
+
+                    <!-- PERBANDINGAN SECTION - BARU -->
+                    <div id="comparisonSection" class="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200" style="display: none;">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Perbandingan Penyewaan</h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Penyewaan Tertinggi -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                    <span class="text-green-800 font-semibold">Penyewaan Tertinggi</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span id="highestPeriodLabel" class="text-gray-600">-</span>
+                                    <span id="highestRentalCount" class="text-2xl font-bold text-green-700">0</span>
+                                </div>
+                            </div>
+
+                            <!-- Penyewaan Terendah -->
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                                    </svg>
+                                    <span class="text-red-800 font-semibold">Penyewaan Terendah</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span id="lowestPeriodLabel" class="text-gray-600">-</span>
+                                    <span id="lowestRentalCount" class="text-2xl font-bold text-red-700">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informasi Tambahan -->
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div class="text-center">
+                                <span class="font-semibold">Total Penyewaan :</span>
+                                <span id="totalRentals" class="ml-1">0</span>
+                            </div>
+                            <div class="text-center">
+                                <span class="font-semibold">Rata-rata :</span>
+                                <span id="averageRentals" class="ml-1">0</span>
+                            </div>
+                            <div class="text-center">
+                                <span class="font-semibold">Periode Aktif :</span>
+                                <span id="activePeriods" class="ml-1">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Table Section -->
                 <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Motor Menunggu Verifikasi</h3>
+                    <h3 class="text-lg font-bold text-purple-800 mb-4">Motor Menunggu Verifikasi</h3>
                     <div class="overflow-x-auto">
                         @if($pendingVerifications->isEmpty())
                         <div class="text-center py-10 text-gray-500 text-base">
@@ -154,6 +252,404 @@
             </div>
         </main>
     </div>
+    <script>
+        let rentalChart;
+        let currentPeriod = 'daily';
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+        let availableYears = [];
+        let currentChartData = {
+            labels: [],
+            data: []
+        };
+
+        function getMonthName(monthNumber) {
+            const months = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            // Pastikan monthNumber adalah number
+            const monthNum = parseInt(monthNumber);
+            return months[monthNum - 1] || 'Unknown';
+        }
+
+        // Function untuk update perbandingan
+        function updateComparisonSection(labels, data, period, year, month) {
+            const comparisonSection = document.getElementById('comparisonSection');
+
+            // Sembunyikan jika tidak ada data
+            if (data.length === 0 || data.every(item => item === 0)) {
+                comparisonSection.style.display = 'none';
+                return;
+            }
+
+            // Tampilkan section
+            comparisonSection.style.display = 'block';
+
+            // Cari nilai tertinggi dan terendah
+            let maxIndex = 0;
+            let minIndex = 0;
+            let total = 0;
+            let activePeriods = 0;
+
+            for (let i = 0; i < data.length; i++) {
+                if (data[i] > data[maxIndex]) maxIndex = i;
+                if (data[i] < data[minIndex]) minIndex = i;
+                total += data[i];
+                if (data[i] > 0) activePeriods++;
+            }
+
+            // Format label berdasarkan periode
+            function formatPeriodLabel(label, periodType) {
+                console.log('Formatting label:', {
+                    label,
+                    periodType,
+                    type: typeof label
+                });
+
+                switch (periodType) {
+                    case 'daily':
+                        return formatDailyLabel(label, year, month);
+                    case 'weekly':
+                        return `${label}`;
+                    case 'monthly':
+                        // Handle kedua format: angka (1-12) atau string ("Jan 2024")
+                        let monthNum;
+                        if (typeof label === 'number') {
+                            monthNum = label;
+                        } else if (typeof label === 'string') {
+                            // Extract angka bulan dari string seperti "Jan 2024"
+                            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+                            ];
+                            const monthAbbr = label.split(' ')[0]; // Ambil "Jan" dari "Jan 2024"
+                            monthNum = monthNames.indexOf(monthAbbr) + 1;
+                            if (monthNum === 0) monthNum = parseInt(label); // Fallback
+                        } else {
+                            monthNum = parseInt(label);
+                        }
+                        console.log('Parsed month number:', monthNum);
+                        return getMonthName(monthNum);
+                    default:
+                        return label;
+                }
+            }
+
+            function formatDailyLabel(dayLabel, year, month) {
+                // Asumsi dayLabel format: "1", "2", etc.
+                const day = parseInt(dayLabel);
+                const monthName = getMonthName(month);
+                return `${day} ${monthName} ${year}`;
+            }
+
+            function getMonthName(monthNumber) {
+                const months = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+                return months[monthNumber - 1] || 'Unknown';
+            }
+
+            // Update UI
+            document.getElementById('highestPeriodLabel').textContent =
+                formatPeriodLabel(labels[maxIndex], period);
+            document.getElementById('highestRentalCount').textContent = data[maxIndex];
+
+            document.getElementById('lowestPeriodLabel').textContent =
+                formatPeriodLabel(labels[minIndex], period);
+            document.getElementById('lowestRentalCount').textContent = data[minIndex];
+
+            document.getElementById('totalRentals').textContent = total;
+            document.getElementById('averageRentals').textContent = Math.round(total / data.length * 10) / 10;
+            document.getElementById('activePeriods').textContent = `${activePeriods} dari ${data.length} periode`;
+
+            // Update title section berdasarkan periode
+            const periodLabels = {
+                'daily': 'Harian',
+                'weekly': 'Mingguan',
+                'monthly': 'Bulanan'
+            };
+
+            const monthName = period === 'daily' ? ` - ${getMonthName(month)}` : '';
+            document.querySelector('#comparisonSection h4').textContent =
+                `Perbandingan Penyewaan ${periodLabels[period]} ${year}${monthName}`;
+        }
+
+        // Load available years
+        async function loadAvailableYears() {
+            try {
+                console.log('Loading available years...');
+                const response = await fetch('/admin/available-years');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                availableYears = await response.json();
+                console.log('Available years loaded:', availableYears);
+
+                const yearFilter = document.getElementById('yearFilter');
+                yearFilter.innerHTML = '';
+
+                if (availableYears.length === 0) {
+                    availableYears = [currentYear];
+                }
+
+                availableYears.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    option.selected = year == currentYear;
+                    yearFilter.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading years:', error);
+                // Fallback ke tahun sekarang jika error
+                const yearFilter = document.getElementById('yearFilter');
+                yearFilter.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+                availableYears = [currentYear];
+            }
+        }
+
+        // Function untuk fetch data dari API
+        async function fetchChartData(period, year, month) {
+            try {
+                const url = `/admin/chart-data?period=${period}&year=${year}&month=${month}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+                return {
+                    success: false,
+                    error: error.message,
+                    labels: [],
+                    data: []
+                };
+            }
+        }
+
+        // Function untuk initialize chart
+        async function initChart(period = 'daily', year = null, month = null) {
+            if (!year) year = currentYear;
+            if (!month) month = currentMonth;
+
+            const chartData = await fetchChartData(period, year, month);
+
+            const ctx = document.getElementById('rentalChart').getContext('2d');
+
+            // Destroy existing chart
+            if (rentalChart) {
+                rentalChart.destroy();
+            }
+
+            // Check if we have valid data
+            if (!chartData.success || !chartData.labels || !chartData.data) {
+                showEmptyChart(ctx, period, year, 'Data tidak tersedia atau terjadi error');
+                updateComparisonSection([], [], period, year, month);
+                return;
+            }
+
+            if (chartData.data.length === 0 || chartData.data.every(item => item === 0)) {
+                showEmptyChart(ctx, period, year, 'Tidak ada data penyewaan untuk periode ini');
+                updateComparisonSection([], [], period, year, month);
+                return;
+            }
+
+            console.log('Creating chart with data:', {
+                labels: chartData.labels,
+                data: chartData.data
+            });
+
+            // Simpan data untuk perbandingan
+            currentChartData = {
+                labels: chartData.labels,
+                data: chartData.data
+            };
+
+            // Update section perbandingan
+            updateComparisonSection(chartData.labels, chartData.data, period, year, month);
+
+            // Create the actual chart
+            rentalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: `Jumlah Penyewaan (${getPeriodLabel(period)} - ${year})`,
+                        data: chartData.data,
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#7C3AED',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#6B7280',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.1)'
+                            },
+                            ticks: {
+                                color: '#6B7280',
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Jumlah Penyewaan',
+                                color: '#6B7280'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.1)'
+                            },
+                            ticks: {
+                                color: '#6B7280',
+                                maxTicksLimit: period === 'monthly' ? 12 : 10
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show empty chart with message
+        function showEmptyChart(ctx, period, year, message) {
+            rentalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [message],
+                    datasets: [{
+                        label: `Tidak ada data (${getPeriodLabel(period)} - ${year})`,
+                        data: [0],
+                        borderColor: '#D1D5DB',
+                        backgroundColor: 'rgba(209, 213, 219, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        pointBackgroundColor: '#9CA3AF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false
+                        },
+                        x: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper function untuk label periode
+        function getPeriodLabel(period) {
+            const labels = {
+                'daily': 'Harian',
+                'weekly': 'Mingguan',
+                'monthly': 'Bulanan'
+            };
+            return labels[period] || period;
+        }
+
+        // Function untuk ganti periode
+        async function changePeriod(period) {
+            currentPeriod = period;
+
+            // Update button styles
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-100', 'text-purple-800');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+
+            event.target.classList.add('bg-purple-100', 'text-purple-800');
+            event.target.classList.remove('bg-white', 'text-gray-700');
+
+            // Tampilkan/sembunyikan filter bulan
+            const monthFilterContainer = document.getElementById('monthFilterContainer');
+            if (period === 'daily') {
+                monthFilterContainer.style.display = 'flex';
+            } else {
+                monthFilterContainer.style.display = 'none';
+            }
+
+            // Update chart
+            await initChart(period, currentYear, currentMonth);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAvailableYears().then(() => {
+                setTimeout(() => {
+                    initChart();
+                }, 100);
+            });
+
+            // Tahun berubah
+            document.getElementById('yearFilter').addEventListener('change', function() {
+                currentYear = parseInt(this.value);
+                console.log('Year changed to:', currentYear);
+                initChart(currentPeriod, currentYear, currentMonth);
+            });
+
+            // Bulan berubah
+            document.getElementById('monthFilter').addEventListener('change', function() {
+                currentMonth = parseInt(this.value);
+                console.log('Month changed to:', currentMonth);
+                if (currentPeriod === 'daily') {
+                    initChart(currentPeriod, currentYear, currentMonth);
+                }
+            });
+
+            // Set default values
+            document.getElementById('monthFilter').value = currentMonth;
+        });
+
+        // Error boundary
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+    </script>
 </body>
 
 </html>

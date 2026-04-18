@@ -52,11 +52,12 @@ class RenterController extends Controller
 
     public function cariMotor(Request $request)
     {
-        Log::info('=== CARI MOTOR DEBUG ===');
-
-        // GUNAKAN 'tersedia' BUKAN 'available'
+        // Gunakan eager loading dengan count yang benar
         $query = Motor::with('rentalRates')
-            ->where('status', 'tersedia'); // INI YANG PERLU DIPERBAIKI!
+            ->withCount(['bookings' => function ($query) {
+                $query->where('status', 'selesai'); // Status yang sesuai dengan enum di database
+            }])
+            ->where('status', 'tersedia');
 
         Log::info('Base query with tersedia: ' . $query->count());
 
@@ -89,9 +90,13 @@ class RenterController extends Controller
 
         Log::info('Final motors count: ' . $motors->count());
 
-        // DEBUG: Tampilkan motor yang ditemukan
+        // DEBUG: Tampilkan motor dan jumlah bookingnya
         foreach ($motors as $motor) {
-            Log::info('Motor: ' . $motor->id . ' - ' . $motor->brand . ' - Status: ' . $motor->status);
+            Log::info('Motor: ' . $motor->id . ' - ' . $motor->brand . ' - Status: ' . $motor->status . ' - Bookings Count: ' . $motor->bookings_count);
+
+            // Debug tambahan untuk melihat booking yang ada
+            $actualBookings = $motor->bookings()->where('status', 'selesai')->count();
+            Log::info('Actual completed bookings for motor ' . $motor->id . ': ' . $actualBookings);
         }
 
         return view('penyewa.cari-motor', compact('motors'));
@@ -119,6 +124,7 @@ class RenterController extends Controller
                 'status' => 'pending',
                 'created_at' => now(),
                 'updated_at' => now(),
+
             ]);
 
             Log::info('Booking created with ID: ' . $bookingId);
@@ -140,32 +146,39 @@ class RenterController extends Controller
         }
     }
 
-    public function cancelBooking(Booking $booking)
+    public function cancelBooking($id)
     {
         $user = Auth::user();
 
-        // Pastikan user sudah login terlebih dahulu
         if (!$user) {
-            return redirect()->back()->with('error', 'Anda harus login untuk melakukan aksi ini.');
+            return redirect()->route('login')->with('error', 'Anda harus login.');
         }
 
-        // Pastikan hanya pemilik pemesanan yang bisa membatalkannya
-        if ($booking->renter_id !== $user->id) { // Menggunakan $user->id yang sudah didefinisikan
-            return redirect()->back()->with('error', 'Anda tidak memiliki hak untuk membatalkan pemesanan ini.');
+        try {
+            $booking = Booking::where('id', $id)
+                ->where('renter_id', $user->id)
+                ->firstOrFail();
+
+            // Validasi status
+            if (!in_array($booking->status, ['pending'])) {
+                return redirect()->back()->with('error', 'Pemesanan ini tidak dapat dibatalkan.');
+            }
+
+            DB::transaction(function () use ($booking) {
+                $booking->update(['status' => 'dibatalkan']);
+
+                $motor = Motor::find($booking->motor_id);
+                if ($motor) {
+                    $motor->update(['status' => 'tersedia']);
+                }
+            });
+
+            return redirect()->back()->with('success', 'Pemesanan berhasil dibatalkan.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', 'Pemesanan tidak ditemukan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Transaksi database untuk memastikan konsistensi
-        DB::transaction(function () use ($booking) {
-            $booking->status = 'cancelled';
-            $booking->save();
-
-            // Ubah status motor kembali menjadi 'tersedia'
-            $motor = Motor::find($booking->motor_id);
-            $motor->status = 'tersedia';
-            $motor->save();
-        });
-
-        return redirect()->back()->with('success', 'Pemesanan berhasil dibatalkan.');
     }
 
     // Di RenterController

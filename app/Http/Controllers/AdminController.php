@@ -14,6 +14,10 @@ use Carbon\Carbon; // Untuk mempermudah perhitungan tanggal
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Style\Language;
 
 
 class AdminController extends Controller
@@ -40,14 +44,178 @@ class AdminController extends Controller
             ->where('status', 'pending_verification')
             ->get();
 
+        // // Data untuk cards
+        // $totalMotors = DB::table('motors')->count();
+        // $totalBookings = DB::table('bookings')->count();
+        // $activeBookings = DB::table('bookings')->where('status', 'disetujui')->count();
+        // $revenue = DB::table('payments')->where('status', 'lunas')->sum('jumlah');
+
+        // // Data untuk chart berdasarkan tanggal_mulai (tanggal sewa dimulai)
+        // $dailyRentals = $this->getBookingData('daily');
+        // $weeklyRentals = $this->getBookingData('weekly');
+        // $monthlyRentals = $this->getBookingData('monthly');
+
         return view('admin.dashboard-admin', compact(
             'totalMotors',
             'pendingBookingsCount',
             'totalRevenue',
-            'totalOwnerRevenue', // Tambahkan ini
+            'totalOwnerRevenue',
             'pendingVerificationsCount',
-            'pendingVerifications'
+            'pendingVerifications',
         ));
+    }
+
+    public function getChartData(Request $request)
+    {
+        $period = $request->get('period', 'daily');
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
+
+        Log::info('Chart Data Request:', [
+            'period' => $period,
+            'year' => $year,
+            'month' => $month
+        ]);
+
+        $query = DB::table('bookings')
+            ->whereIn('status', ['disetujui', 'selesai']);
+
+        switch ($period) {
+            case 'daily':
+                // Data harian untuk bulan dan tahun yang dipilih
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                $labels = [];
+                $data = [];
+
+                for ($day = 1; $day <= $daysInMonth; $day++) {
+                    $date = Carbon::create($year, $month, $day);
+                    $labels[] = $date->format('d M');
+
+                    $count = $query->clone()
+                        ->whereDate('tanggal_mulai', $date->format('Y-m-d'))
+                        ->count();
+
+                    $data[] = $count;
+                }
+                break;
+
+            case 'weekly':
+                // Data mingguan untuk tahun yang dipilih
+                $labels = [];
+                $data = [];
+
+                // Cari jumlah minggu dalam tahun
+                $weeksInYear = Carbon::create($year, 12, 28)->weekOfYear; // Minggu terakhir di tahun tersebut
+
+                for ($week = 1; $week <= $weeksInYear; $week++) {
+                    $startOfWeek = Carbon::now()->setISODate($year, $week)->startOfWeek();
+                    $endOfWeek = Carbon::now()->setISODate($year, $week)->endOfWeek();
+
+                    $labels[] = 'Minggu ' . $week . ' (' . $startOfWeek->format('d M') . ')';
+
+                    $count = $query->clone()
+                        ->whereBetween('tanggal_mulai', [
+                            $startOfWeek->format('Y-m-d'),
+                            $endOfWeek->format('Y-m-d')
+                        ])
+                        ->count();
+
+                    $data[] = $count;
+                }
+                break;
+
+            case 'monthly':
+                // Data bulanan untuk tahun yang dipilih
+                $labels = [];
+                $data = [];
+                $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+                for ($m = 1; $m <= 12; $m++) {
+                    $startOfMonth = Carbon::create($year, $m, 1)->startOfMonth();
+                    $endOfMonth = Carbon::create($year, $m, 1)->endOfMonth();
+
+                    $labels[] = $monthNames[$m - 1] . ' ' . $year;
+
+                    $count = $query->clone()
+                        ->whereBetween('tanggal_mulai', [
+                            $startOfMonth->format('Y-m-d'),
+                            $endOfMonth->format('Y-m-d')
+                        ])
+                        ->count();
+
+                    $data[] = $count;
+                }
+                break;
+        }
+
+        Log::info('Chart Data Response:', [
+            'labels' => $labels,
+            'data' => $data,
+            'total_data' => count($data)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'labels' => $labels,
+            'data' => $data,
+            'period' => $period,
+            'year' => $year,
+            'month' => $month
+        ]);
+    }
+
+    // API untuk mendapatkan tahun-tahun yang tersedia
+    public function getAvailableYears()
+    {
+        try {
+            $years = DB::table('bookings')
+                ->select(DB::raw('YEAR(tanggal_mulai) as year'))
+                ->whereIn('status', ['disetujui', 'selesai'])
+                ->distinct()
+                ->orderBy('year', 'desc')
+                ->pluck('year')
+                ->toArray();
+
+            // Jika tidak ada data, return tahun sekarang saja
+            if (empty($years)) {
+                return response()->json([date('Y')]);
+            }
+
+            // Hanya tampilkan tahun yang <= tahun sekarang
+            $currentYear = date('Y');
+            $availableYears = array_filter($years, function ($year) use ($currentYear) {
+                return $year <= $currentYear;
+            });
+
+            // Jika setelah filter kosong, tambahkan tahun sekarang
+            if (empty($availableYears)) {
+                $availableYears = [$currentYear];
+            }
+
+            // Urutkan descending
+            rsort($availableYears);
+
+            return response()->json($availableYears);
+        } catch (\Exception $e) {
+            // Fallback ke tahun sekarang jika error
+            return response()->json([date('Y')]);
+        }
+    }
+
+    public function manajemenPemesanan()
+    {
+        // Pemesanan menunggu persetujuan
+        $pendingBookings = Booking::with(['renter', 'motor'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // SEMUA pemesanan untuk riwayat (dengan pagination)
+        $allBookingsAdmin = Booking::with(['renter', 'motor'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // 10 items per page
+
+        return view('admin.manajemen-pemesanan', compact('pendingBookings', 'allBookingsAdmin'));
     }
 
     public function verifikasiMotor()
@@ -87,10 +255,23 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Harga motor berhasil diperbarui.');
     }
 
-    public function manajemenPemesanan()
+    public function completeBooking(Booking $booking)
     {
-        $pendingBookings = Booking::with(['renter', 'motor'])->where('status', 'pending')->get();
-        return view('admin.manajemen-pemesanan', compact('pendingBookings'));
+        try {
+            DB::transaction(function () use ($booking) {
+                $booking->update(['status' => 'selesai']);
+
+                // Kembalikan motor ke status tersedia
+                $motor = Motor::find($booking->motor_id);
+                if ($motor) {
+                    $motor->update(['status' => 'tersedia']);
+                }
+            });
+
+            return redirect()->back()->with('success', 'Pemesanan berhasil ditandai sebagai selesai.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function approveBooking(Request $request, Booking $booking)
@@ -158,30 +339,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.manajemen-pemesanan')->with('success', 'Pemesanan berhasil ditolak.');
     }
-
-    // public function laporanKeuangan()
-    // {
-    //     // Mendapatkan semua pemesanan yang statusnya 'selesai'
-    //     $completedBookings = Booking::with(['renter', 'motor'])
-    //         ->where('status', 'selesai')
-    //         ->get();
-
-    //     // Menghitung total pendapatan kotor dari semua pemesanan yang selesai
-    //     $totalGrossRevenue = $completedBookings->sum('total_biaya');
-
-    //     // Menghitung pendapatan bersih RMC (20% dari total)
-    //     $rmcRevenue = $totalGrossRevenue * 0.20;
-
-    //     // Menghitung bagi hasil untuk pemilik (80% dari total)
-    //     $ownerShare = $totalGrossRevenue * 0.80;
-
-    //     return view('admin.laporan', compact(
-    //         'completedBookings',
-    //         'totalGrossRevenue',
-    //         'rmcRevenue',
-    //         'ownerShare'
-    //     ));
-    // }
 
     public function showVerifikasi()
     {
@@ -313,11 +470,299 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $popularMotors = DB::table('motors')
+            ->select(
+                'motors.id',
+                'motors.brand',
+                'motors.type_cc',
+                'motors.plate_number',
+                'motors.photo_url',
+                'motors.status',
+                DB::raw('COUNT(bookings.id) as rentals_count'),
+                DB::raw('COALESCE(SUM(revenue_sharings.pemilik_share + revenue_sharings.admin_share), 0) as total_revenue')
+            )
+            ->leftJoin('bookings', function ($join) {
+                $join->on('motors.id', '=', 'bookings.motor_id')
+                    ->where('bookings.status', 'selesai');
+            })
+            ->leftJoin('revenue_sharings', 'bookings.id', '=', 'revenue_sharings.booking_id')
+            ->groupBy(
+                'motors.id',
+                'motors.brand',
+                'motors.type_cc',
+                'motors.plate_number',
+                'motors.photo_url',
+                'motors.status'
+            )
+            ->orderByDesc('rentals_count')
+            ->orderByDesc('total_revenue')
+            ->limit(5) // TAMPILKAN 5 BESAR SAJA
+            ->get();
+
         return view('admin.laporan', compact(
             'totalGrossRevenue',
             'rmcRevenue',
             'ownerShare',
-            'completedBookings'
+            'completedBookings',
+            'popularMotors'
         ));
+    }
+
+    // Tambahkan method ini di AdminController yang sudah ada
+    public function downloadLaporan(Request $request, $format)
+    {
+        try {
+            // Ambil data langsung dari method getLaporanData
+            $data = $this->getLaporanData();
+
+            // Debug: Cek apakah data ada
+            logger('Data Laporan:', $data);
+
+            if ($format === 'pdf') {
+                return $this->downloadPDF($data);
+            } elseif ($format === 'word') {
+                return $this->downloadWord($data);
+            }
+
+            return redirect()->back()->with('error', 'Format tidak didukung');
+        } catch (\Exception $e) {
+            logger('Error download laporan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi error: ' . $e->getMessage());
+        }
+    }
+
+    private function getLaporanData()
+    {
+        // Total Pendapatan Kotor (pemilik_share + admin_share)
+        $totalGrossRevenue = DB::table('revenue_sharings')
+            ->selectRaw('SUM(pemilik_share + admin_share) as total')
+            ->value('total') ?? 0;
+
+        // Pendapatan RMC (admin share)
+        $rmcRevenue = DB::table('revenue_sharings')->sum('admin_share');
+
+        // Bagian pemilik
+        $ownerShare = DB::table('revenue_sharings')->sum('pemilik_share');
+
+        // Data booking lengkap - PASTIKAN RELASI ADA
+        $completedBookings = Booking::with(['motor', 'renter', 'revenueSharing'])
+            ->whereHas('revenueSharing')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $popularMotors = DB::table('motors')
+            ->select(
+                'motors.id',
+                'motors.brand',
+                'motors.type_cc',
+                'motors.plate_number',
+                'motors.photo_url',
+                'motors.status',
+                DB::raw('COUNT(bookings.id) as rentals_count'),
+                DB::raw('COALESCE(SUM(revenue_sharings.pemilik_share + revenue_sharings.admin_share), 0) as total_revenue')
+            )
+            ->leftJoin('bookings', function ($join) {
+                $join->on('motors.id', '=', 'bookings.motor_id')
+                    ->where('bookings.status', 'selesai');
+            })
+            ->leftJoin('revenue_sharings', 'bookings.id', '=', 'revenue_sharings.booking_id')
+            ->groupBy('motors.id', 'motors.brand', 'motors.type_cc', 'motors.plate_number', 'motors.photo_url', 'motors.status')
+            ->orderByDesc('rentals_count')
+            ->orderByDesc('total_revenue')
+            ->limit(5)
+            ->get();
+
+        // Data tambahan
+        $totalBookings = Booking::count();
+        $completedBookingsCount = Booking::where('status', 'selesai')->count();
+        $activeMotors = DB::table('motors')->where('status', 'tersedia')->count();
+
+        return [
+            'totalGrossRevenue' => $totalGrossRevenue,
+            'rmcRevenue' => $rmcRevenue,
+            'ownerShare' => $ownerShare,
+            'completedBookings' => $completedBookings,
+            'popularMotors' => $popularMotors,
+            'totalBookings' => $totalBookings,
+            'completedBookingsCount' => $completedBookingsCount,
+            'activeMotors' => $activeMotors,
+            'tanggal_laporan' => now()->format('d F Y'),
+            'periode_laporan' => 'Semua Periode'
+        ];
+    }
+
+    private function downloadPDF($data)
+    {
+        // Tambahkan data tambahan yang diperlukan untuk view
+        $data['periode_laporan'] = 'Semua Periode'; // atau sesuaikan dengan filter
+
+        $pdf = Pdf::loadView('admin.laporan', $data);
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOption('defaultFont', 'Poppins');
+
+        $filename = 'Laporan_Keuangan_RMC_' . now()->format('Y_m_d') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    private function downloadWord($data)
+    {
+        $phpWord = new PhpWord();
+
+        // Set font default ke Poppins
+        $phpWord->setDefaultFontName('Poppins');
+        $phpWord->getSettings()->setThemeFontLang(new Language(Language::EN_US));
+
+        $section = $phpWord->addSection();
+
+        // Header Laporan
+        $header = $section->addHeader();
+        $header->addText('LAPORAN KEUANGAN - RENTAL MOTOR RMC', ['bold' => true, 'size' => 14], ['alignment' => 'center']);
+        $header->addText('Periode : ' . $data['periode_laporan'], ['size' => 10], ['alignment' => 'center']);
+
+        // Judul Utama
+        $section->addTextBreak(1);
+        $section->addTitle('LAPORAN KEUANGAN DETAIL - RENTAL MOTOR RMC', 1);
+        $section->addText('Tanggal Laporan: ' . $data['tanggal_laporan'], ['size' => 10]);
+        $section->addTextBreak(1);
+
+        // Ringkasan Pendapatan
+        $section->addTitle('Ringkasan Pendapatan', 2);
+
+        // Tabel Ringkasan
+        $tableStyle = [
+            'borderSize' => 6,
+            'borderColor' => '000000',
+            'cellMargin' => 50,
+            'alignment' => 'center'
+        ];
+
+        $firstRowStyle = ['bgColor' => 'E0E0E0'];
+        $phpWord->addTableStyle('summaryTable', $tableStyle, $firstRowStyle);
+
+        $table = $section->addTable('summaryTable');
+        $table->addRow();
+        $table->addCell(4000)->addText('Jenis Pendapatan', ['bold' => true]);
+        $table->addCell(4000)->addText('Jumlah', ['bold' => true]);
+
+        $table->addRow();
+        $table->addCell(4000)->addText('Total Pendapatan Kotor');
+        $table->addCell(4000)->addText('Rp ' . number_format($data['totalGrossRevenue'], 0, ',', '.'));
+
+        $table->addRow();
+        $table->addCell(4000)->addText('Pendapatan RMC (30%)');
+        $table->addCell(4000)->addText('Rp ' . number_format($data['rmcRevenue'], 0, ',', '.'));
+
+        $table->addRow();
+        $table->addCell(4000)->addText('Bagi Hasil Pemilik (70%)');
+        $table->addCell(4000)->addText('Rp ' . number_format($data['ownerShare'], 0, ',', '.'));
+
+        $section->addTextBreak(2);
+
+        // Statistik Tambahan
+        $section->addTitle('Statistik Umum', 2);
+
+        $statsTable = $section->addTable('summaryTable');
+        $statsTable->addRow();
+        $statsTable->addCell(4000)->addText('Total Pemesanan', ['bold' => true]);
+        $statsTable->addCell(4000)->addText($data['totalBookings']);
+
+        $statsTable->addRow();
+        $statsTable->addCell(4000)->addText('Pemesanan Selesai', ['bold' => true]);
+        $statsTable->addCell(4000)->addText($data['completedBookingsCount']);
+
+        $statsTable->addRow();
+        $statsTable->addCell(4000)->addText('Motor Tersedia', ['bold' => true]);
+        $statsTable->addCell(4000)->addText($data['activeMotors']);
+
+        $section->addTextBreak(2);
+
+        // Rincian Pendapatan per Booking
+        $section->addTitle('Rincian Pendapatan per Booking', 2);
+
+        if ($data['completedBookings']->isEmpty()) {
+            $section->addText('Belum ada pemesanan yang selesai.');
+        } else {
+            $detailTableStyle = [
+                'borderSize' => 6,
+                'borderColor' => '000000',
+                'cellMargin' => 50
+            ];
+
+            $phpWord->addTableStyle('detailTable', $detailTableStyle, $firstRowStyle);
+            $detailTable = $section->addTable('detailTable');
+
+            // Header Tabel
+            $detailTable->addRow();
+            $detailTable->addCell(2000)->addText('Motor', ['bold' => true]);
+            $detailTable->addCell(2000)->addText('Penyewa', ['bold' => true]);
+            $detailTable->addCell(2000)->addText('Tanggal Sewa', ['bold' => true]);
+            $detailTable->addCell(1500)->addText('Pendapatan Kotor', ['bold' => true]);
+            $detailTable->addCell(1500)->addText('Pendapatan RMC', ['bold' => true]);
+            $detailTable->addCell(1500)->addText('Bagi Hasil Pemilik', ['bold' => true]);
+
+            // Data Booking
+            foreach ($data['completedBookings'] as $booking) {
+                $detailTable->addRow();
+                $detailTable->addCell(2000)->addText($booking->motor->brand . ' ' . $booking->motor->type_cc . 'cc');
+                $detailTable->addCell(2000)->addText($booking->renter->name);
+                $detailTable->addCell(2000)->addText(
+                    \Carbon\Carbon::parse($booking->tanggal_mulai)->format('d/m/Y') . ' - ' .
+                        \Carbon\Carbon::parse($booking->tanggal_selesai)->format('d/m/Y')
+                );
+                $detailTable->addCell(1500)->addText('Rp ' . number_format($booking->revenueSharing->pemilik_share + $booking->revenueSharing->admin_share, 0, ',', '.'));
+                $detailTable->addCell(1500)->addText('Rp ' . number_format($booking->revenueSharing->admin_share, 0, ',', '.'));
+                $detailTable->addCell(1500)->addText('Rp ' . number_format($booking->revenueSharing->pemilik_share, 0, ',', '.'));
+            }
+
+            // Footer Total
+            $detailTable->addRow();
+            $detailTable->addCell(6000)->addText('TOTAL', ['bold' => true], ['alignment' => 'right']);
+            $detailTable->addCell(1500)->addText('Rp ' . number_format($data['totalGrossRevenue'], 0, ',', '.'), ['bold' => true]);
+            $detailTable->addCell(1500)->addText('Rp ' . number_format($data['rmcRevenue'], 0, ',', '.'), ['bold' => true]);
+            $detailTable->addCell(1500)->addText('Rp ' . number_format($data['ownerShare'], 0, ',', '.'), ['bold' => true]);
+        }
+
+        $section->addTextBreak(2);
+
+        // Motor Populer
+        $section->addTitle('5 Motor Terpopuler', 2);
+
+        if ($data['popularMotors']->isEmpty()) {
+            $section->addText('Belum ada data motor populer.');
+        } else {
+            $motorTable = $section->addTable('detailTable');
+
+            $motorTable->addRow();
+            $motorTable->addCell(1500)->addText('Peringkat', ['bold' => true]);
+            $motorTable->addCell(2500)->addText('Motor', ['bold' => true]);
+            $motorTable->addCell(2000)->addText('Nomor Polisi', ['bold' => true]);
+            $motorTable->addCell(1500)->addText('Status', ['bold' => true]);
+            $motorTable->addCell(1500)->addText('Jumlah Sewa', ['bold' => true]);
+            $motorTable->addCell(1500)->addText('Total Pendapatan', ['bold' => true]);
+
+            foreach ($data['popularMotors'] as $index => $motor) {
+                $motorTable->addRow();
+                $motorTable->addCell(1500)->addText('#' . ($index + 1));
+                $motorTable->addCell(2500)->addText($motor->brand . ' ' . $motor->type_cc . 'cc');
+                $motorTable->addCell(2000)->addText($motor->plate_number);
+                $motorTable->addCell(1500)->addText(ucfirst($motor->status));
+                $motorTable->addCell(1500)->addText($motor->rentals_count . ' kali');
+                $motorTable->addCell(1500)->addText('Rp ' . number_format($motor->total_revenue ?? 0, 0, ',', '.'));
+            }
+        }
+
+        $section->addTextBreak(2);
+
+        // Footer
+        $section->addText('Laporan ini dibuat secara otomatis oleh sistem Rental Motor RMC.');
+        $section->addText('© ' . date('Y') . ' RMC - All rights reserved.', ['size' => 9, 'italic' => true]);
+
+        $filename = 'Laporan_Keuangan_RMC_' . now()->format('Y_m_d') . '.docx';
+        $filePath = storage_path('app/' . $filename);
+
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save($filePath);
+
+        return response()->download($filePath, $filename)->deleteFileAfterSend(true);
     }
 }
